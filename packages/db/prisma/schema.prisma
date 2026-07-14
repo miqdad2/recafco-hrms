@@ -1,0 +1,573 @@
+// RECAFCO HRMS — Prisma schema
+// Source of truth for PostgreSQL schema. See context/architecture.md for invariants
+// (raw punches are append-only, payroll locks cannot be silently edited, etc.).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// Keep string values aligned with packages/shared/src/enums/*.
+// ---------------------------------------------------------------------------
+
+enum EmployeeStatus {
+  ACTIVE
+  INACTIVE
+  ON_LEAVE
+  RESIGNED
+  TERMINATED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  TEMPORARY
+}
+
+enum AttendanceSourceType {
+  MOBILE
+  BIOMETRIC_DEVICE
+  FACE_DEVICE
+  CARD_DEVICE
+  WEB
+  MANUAL_CORRECTION
+  IMPORT
+  FUTURE_INTEGRATION
+}
+
+enum PunchType {
+  IN
+  OUT
+  BREAK_START
+  BREAK_END
+}
+
+enum PunchValidationStatus {
+  ACCEPTED
+  ACCEPTED_WITH_WARNING
+  REJECTED_OUTSIDE_LOCATION
+  REJECTED_FAKE_GPS
+  REJECTED_UNREGISTERED_DEVICE
+  REJECTED_EMPLOYEE_INACTIVE
+  REJECTED_DUPLICATE
+  PENDING_HR_REVIEW
+  PENDING_MANAGER_APPROVAL
+  REJECTED_POLICY_VIOLATION
+}
+
+enum DailyAttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  HALF_DAY
+  LEAVE
+  WEEK_OFF
+  HOLIDAY
+  MISSING_PUNCH
+}
+
+enum CorrectionStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PayrollLockStatus {
+  OPEN
+  LOCKED
+  REOPENED
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum WorkLocationType {
+  OFFICE
+  FACTORY
+  WAREHOUSE
+  PROJECT_SITE
+}
+
+enum AttendanceDeviceType {
+  BIOMETRIC
+  FACE_RECOGNITION
+  CARD
+  QR_TERMINAL
+  TURNSTILE
+  OTHER
+}
+
+enum AttendanceConnectionMode {
+  NETWORK_PULL
+  API
+  DATABASE_SYNC
+  FILE_IMPORT
+  MANUAL_IMPORT
+  UNKNOWN
+}
+
+// ---------------------------------------------------------------------------
+// Organization foundation
+// ---------------------------------------------------------------------------
+
+model Department {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  code        String?  @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees Employee[]
+
+  @@map("departments")
+}
+
+model Designation {
+  id          String   @id @default(cuid())
+  title       String
+  code        String?  @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  employees Employee[]
+
+  @@map("designations")
+}
+
+model WorkLocation {
+  id                   String           @id @default(cuid())
+  name                 String
+  code                 String           @unique
+  type                 WorkLocationType @default(OFFICE)
+  address              String?
+  latitude             Float
+  longitude            Float
+  geofenceRadiusMeters Int              @default(100)
+  timezone             String           @default("UTC")
+  isActive             Boolean          @default(true)
+  createdAt            DateTime         @default(now())
+  updatedAt            DateTime         @updatedAt
+
+  employees         Employee[]
+  attendanceDevices AttendanceDevice[]
+  rawPunches        AttendanceRawPunch[]
+
+  @@map("work_locations")
+}
+
+// ---------------------------------------------------------------------------
+// Devices
+// ---------------------------------------------------------------------------
+
+model AttendanceDevice {
+  id              String                   @id @default(cuid())
+  name            String
+  deviceCode      String                   @unique
+  sourceType      AttendanceSourceType
+  deviceType      AttendanceDeviceType
+  vendor          String?
+  model           String?
+  serialNumber    String?                  @unique
+  workLocationId  String
+  ipAddress       String?
+  port            Int?
+  connectionMode  AttendanceConnectionMode @default(UNKNOWN)
+  isActive        Boolean                  @default(true)
+  lastSyncAt      DateTime?
+  notes           String?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  workLocation WorkLocation         @relation(fields: [workLocationId], references: [id])
+  rawPunches   AttendanceRawPunch[]
+
+  @@index([workLocationId])
+  @@index([sourceType])
+  @@index([deviceType])
+  @@index([connectionMode])
+  @@map("attendance_devices")
+}
+
+model MobileDevice {
+  id               String    @id @default(cuid())
+  employeeId       String
+  deviceIdentifier String    @unique
+  deviceModel      String?
+  osName           String?
+  osVersion        String?
+  appVersion       String?
+  pushToken        String?
+  isActive         Boolean   @default(true)
+  registeredAt     DateTime  @default(now())
+  lastSeenAt       DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  employee   Employee             @relation(fields: [employeeId], references: [id])
+  rawPunches AttendanceRawPunch[]
+
+  @@index([employeeId])
+  @@map("mobile_devices")
+}
+
+// ---------------------------------------------------------------------------
+// Employee
+// ---------------------------------------------------------------------------
+
+model Employee {
+  id                   String         @id @default(cuid())
+  employeeCode         String         @unique
+  firstName            String
+  lastName             String
+  email                String?        @unique
+  phone                String?
+  civilId              String?        @unique
+  status               EmployeeStatus @default(ACTIVE)
+  employmentType       EmploymentType
+  departmentId         String?
+  designationId        String?
+  workLocationId       String?
+  hireDate             DateTime
+  terminationDate      DateTime?
+  isMobilePunchAllowed Boolean        @default(true)
+  isDeviceOnly         Boolean        @default(false)
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+  deletedAt            DateTime?
+
+  department   Department?   @relation(fields: [departmentId], references: [id])
+  designation  Designation?  @relation(fields: [designationId], references: [id])
+  workLocation WorkLocation? @relation(fields: [workLocationId], references: [id])
+
+  mobileDevices     MobileDevice[]
+  shiftAssignments  ShiftAssignment[]
+  rawPunches        AttendanceRawPunch[]
+  dailySummaries    AttendanceDailySummary[]
+  corrections       AttendanceCorrection[]
+  user              User?
+
+  @@index([departmentId])
+  @@index([designationId])
+  @@index([workLocationId])
+  @@index([status])
+  @@map("employees")
+}
+
+// ---------------------------------------------------------------------------
+// Shifts
+// ---------------------------------------------------------------------------
+
+model Shift {
+  id                 String   @id @default(cuid())
+  name               String
+  code               String?  @unique
+  startTimeMinutes   Int
+  endTimeMinutes     Int
+  isOvernight        Boolean  @default(false)
+  gracePeriodMinutes Int      @default(0)
+  breakMinutes       Int      @default(0)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  shiftAssignments ShiftAssignment[]
+
+  @@map("shifts")
+}
+
+model ShiftAssignment {
+  id             String    @id @default(cuid())
+  employeeId     String
+  shiftId        String
+  effectiveFrom  DateTime
+  effectiveTo    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  employee Employee @relation(fields: [employeeId], references: [id])
+  shift    Shift    @relation(fields: [shiftId], references: [id])
+
+  @@index([employeeId, effectiveFrom])
+  @@index([shiftId])
+  @@map("shift_assignments")
+}
+
+// ---------------------------------------------------------------------------
+// Attendance — Layer 1: raw punches (append-only, audit-complete)
+// ---------------------------------------------------------------------------
+
+model AttendanceRawPunch {
+  id                          String                @id @default(cuid())
+  employeeId                  String
+  punchType                   PunchType
+  sourceType                  AttendanceSourceType
+  sourceId                    String?
+  sourceDeviceId              String?
+  punchTimeSource             DateTime
+  punchTimeServer             DateTime
+  latitude                    Float?
+  longitude                   Float?
+  gpsAccuracy                 Float?
+  distanceFromLocationMeters  Float?
+  workLocationId              String?
+  mobileDeviceId              String?
+  attendanceDeviceId          String?
+  ipAddress                   String?
+  wifiSsid                    String?
+  wifiBssid                   String?
+  selfieFileId                String?
+  validationStatus            PunchValidationStatus
+  fraudScore                  Float                 @default(0)
+  fraudFlags                  Json                  @default("[]")
+  rawPayload                  Json                  @default("{}")
+  isOfficial                  Boolean               @default(false)
+  duplicateOfPunchId          String?
+  createdAt                   DateTime              @default(now())
+
+  employee         Employee            @relation(fields: [employeeId], references: [id])
+  workLocation     WorkLocation?       @relation(fields: [workLocationId], references: [id])
+  mobileDevice     MobileDevice?       @relation(fields: [mobileDeviceId], references: [id])
+  attendanceDevice AttendanceDevice?   @relation(fields: [attendanceDeviceId], references: [id])
+
+  duplicateOfPunch  AttendanceRawPunch?  @relation("PunchDuplicateOf", fields: [duplicateOfPunchId], references: [id])
+  duplicatePunches  AttendanceRawPunch[] @relation("PunchDuplicateOf")
+
+  summariesAsOfficialIn  AttendanceDailySummary[] @relation("SummaryOfficialInPunch")
+  summariesAsOfficialOut AttendanceDailySummary[] @relation("SummaryOfficialOutPunch")
+
+  @@unique([attendanceDeviceId, sourceId])
+  @@index([employeeId, punchTimeServer])
+  @@index([workLocationId])
+  @@index([sourceType])
+  @@index([validationStatus])
+  @@index([mobileDeviceId])
+  @@index([attendanceDeviceId])
+  @@index([duplicateOfPunchId])
+  @@map("attendance_raw_punches")
+}
+
+// ---------------------------------------------------------------------------
+// Attendance — Layer 3: daily summaries (derived, recalculable)
+// ---------------------------------------------------------------------------
+
+model AttendanceDailySummary {
+  id                  String                 @id @default(cuid())
+  employeeId          String
+  workDate            DateTime
+  officialInPunchId   String?
+  officialOutPunchId  String?
+  officialInTime      DateTime?
+  officialOutTime     DateTime?
+  totalWorkedMinutes  Int                    @default(0)
+  lateMinutes         Int                    @default(0)
+  earlyLeaveMinutes   Int                    @default(0)
+  overtimeMinutes     Int                    @default(0)
+  status              DailyAttendanceStatus
+  calculationVersion  Int                    @default(1)
+  calculatedAt        DateTime
+  lockedAt            DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  employee         Employee            @relation(fields: [employeeId], references: [id])
+  officialInPunch  AttendanceRawPunch? @relation("SummaryOfficialInPunch", fields: [officialInPunchId], references: [id])
+  officialOutPunch AttendanceRawPunch? @relation("SummaryOfficialOutPunch", fields: [officialOutPunchId], references: [id])
+
+  @@unique([employeeId, workDate])
+  @@index([status])
+  @@index([lockedAt])
+  @@map("attendance_daily_summaries")
+}
+
+// ---------------------------------------------------------------------------
+// Attendance — Layer 4: corrections
+// ---------------------------------------------------------------------------
+
+model AttendanceCorrection {
+  id                 String           @id @default(cuid())
+  employeeId         String
+  workDate           DateTime
+  requestedByUserId  String
+  reason             String
+  status             CorrectionStatus @default(PENDING)
+  beforeSnapshot     Json
+  afterSnapshot      Json
+  approvedByUserId   String?
+  rejectedReason     String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  employee    Employee @relation(fields: [employeeId], references: [id])
+  requestedBy User     @relation("CorrectionRequestedBy", fields: [requestedByUserId], references: [id])
+  approvedBy  User?    @relation("CorrectionApprovedBy", fields: [approvedByUserId], references: [id])
+
+  @@index([employeeId, workDate])
+  @@index([status])
+  @@index([requestedByUserId])
+  @@index([approvedByUserId])
+  @@map("attendance_corrections")
+}
+
+// ---------------------------------------------------------------------------
+// Attendance — Layer 5: payroll closing lock
+// ---------------------------------------------------------------------------
+
+model AttendancePayrollLock {
+  id               String             @id @default(cuid())
+  periodStart      DateTime
+  periodEnd        DateTime
+  status           PayrollLockStatus  @default(OPEN)
+  lockedByUserId   String?
+  lockedAt         DateTime?
+  reopenedByUserId String?
+  reopenedAt       DateTime?
+  reopenReason     String?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@unique([periodStart, periodEnd])
+  @@index([periodStart, periodEnd])
+  @@index([status])
+  @@map("attendance_payroll_locks")
+}
+
+// ---------------------------------------------------------------------------
+// Audit log
+// ---------------------------------------------------------------------------
+
+model AuditLog {
+  id             String   @id @default(cuid())
+  actorUserId    String?
+  entityType     String
+  entityId       String
+  action         String
+  beforeSnapshot Json?
+  afterSnapshot  Json?
+  ipAddress      String?
+  userAgent      String?
+  createdAt      DateTime @default(now())
+
+  actor User? @relation(fields: [actorUserId], references: [id])
+
+  @@index([entityType, entityId])
+  @@index([actorUserId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ---------------------------------------------------------------------------
+// Auth / RBAC foundation
+// ---------------------------------------------------------------------------
+
+model User {
+  id                  String     @id @default(cuid())
+  employeeId          String?    @unique
+  username            String     @unique
+  email               String?    @unique
+  passwordHash        String
+  status              UserStatus @default(ACTIVE)
+  mustChangePassword  Boolean    @default(false)
+  lastLoginAt         DateTime?
+  failedLoginAttempts Int        @default(0)
+  lockedUntil         DateTime?
+  createdAt           DateTime   @default(now())
+  updatedAt           DateTime   @updatedAt
+
+  employee Employee? @relation(fields: [employeeId], references: [id])
+
+  userRoles            UserRole[]
+  refreshTokens        RefreshToken[]
+  requestedCorrections AttendanceCorrection[] @relation("CorrectionRequestedBy")
+  approvedCorrections  AttendanceCorrection[] @relation("CorrectionApprovedBy")
+  auditLogs            AuditLog[]
+
+  @@index([status])
+  @@map("users")
+}
+
+model Role {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  name         String
+  description  String?
+  isSystemRole Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userRoles       UserRole[]
+  rolePermissions RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id         String   @id @default(cuid())
+  userId     String
+  roleId     String
+  assignedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  role Role @relation(fields: [roleId], references: [id])
+
+  @@unique([userId, roleId])
+  @@index([roleId])
+  @@map("user_roles")
+}
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  roleId       String
+  permissionId String
+  createdAt    DateTime @default(now())
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@unique([roleId, permissionId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model RefreshToken {
+  id         String    @id @default(cuid())
+  userId     String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}

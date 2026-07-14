@@ -1,0 +1,23 @@
+{
+  "name": "recafco-hrms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "RECAFCO internal HRMS for web, mobile attendance, employee self-service, approvals, and payroll-grade attendance processing.",
+  "scripts": {
+    "dev": "turbo dev",
+    "dev:api": "pnpm --filter @recafco/db build && pnpm --filter @recafco/api dev",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "typecheck": "turbo typecheck",
+    "format": "prettier --write .",
+    "db:generate": "pnpm --filter @recafco/db db:generate",
+    "db:migrate": "pnpm --filter @recafco/db db:migrate",
+    "db:studio": "pnpm --filter @recafco/db db:studio"
+  },
+  "devDependencies": {
+    "turbo": "2.5.8",
+    "typescript": "5.9.3",
+    "prettier": "3.6.2"
+  },
+  "packageManager": "pnpm@11.8.0"
+}

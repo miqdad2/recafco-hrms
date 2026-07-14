@@ -1,0 +1,23 @@
+{
+  "name": "@recafco/db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "echo db lint pending",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.3",
+    "prisma": "6.19.3",
+    "typescript": "5.9.3"
+  }
+}
