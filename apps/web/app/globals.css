@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+/*
+ * Design tokens from context/ui-context.md. Components must reference the
+ * Tailwind utilities generated below (bg-background, text-foreground, etc.)
+ * rather than hardcoding hex values.
+ */
+:root {
+  --bg-base: #f6f8fb;
+  --bg-surface: #ffffff;
+  --bg-muted: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --accent-primary: #0f766e;
+  --accent-primary-hover: #115e59;
+  --border-default: #dbe3ea;
+  --state-error: #dc2626;
+  --state-warning: #d97706;
+  --state-success: #16a34a;
+  --state-info: #2563eb;
+  --state-locked: #334155;
+}
+
+@theme inline {
+  --color-background: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-muted: var(--bg-muted);
+  --color-foreground: var(--text-primary);
+  --color-muted-foreground: var(--text-secondary);
+  --color-subtle-foreground: var(--text-muted);
+  --color-accent: var(--accent-primary);
+  --color-accent-hover: var(--accent-primary-hover);
+  --color-border: var(--border-default);
+  --color-error: var(--state-error);
+  --color-warning: var(--state-warning);
+  --color-success: var(--state-success);
+  --color-info: var(--state-info);
+  --color-locked: var(--state-locked);
+
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  --font-mono: var(--font-geist-mono, ui-monospace, monospace);
+}
+
+body {
+  background-color: var(--bg-base);
+  color: var(--text-primary);
+}

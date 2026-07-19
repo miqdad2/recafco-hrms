@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "turbo dev",
     "dev:api": "pnpm --filter @recafco/db build && pnpm --filter @recafco/api dev",
+    "dev:web": "pnpm --filter @recafco/web dev",
     "build": "turbo build",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",

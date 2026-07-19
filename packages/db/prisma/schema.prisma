@@ -80,6 +80,15 @@ enum CorrectionStatus {
   CANCELLED
 }
 
+enum CorrectionType {
+  MISSED_IN
+  MISSED_OUT
+  WRONG_IN
+  WRONG_OUT
+  MANUAL_ADJUSTMENT
+  OTHER
+}
+
 enum PayrollLockStatus {
   OPEN
   LOCKED
@@ -114,6 +123,19 @@ enum AttendanceConnectionMode {
   FILE_IMPORT
   MANUAL_IMPORT
   UNKNOWN
+}
+
+enum MobilePlatform {
+  ANDROID
+  IOS
+  UNKNOWN
+}
+
+enum MobileDeviceStatus {
+  PENDING_APPROVAL
+  APPROVED
+  BLOCKED
+  DEACTIVATED
 }
 
 // ---------------------------------------------------------------------------
@@ -174,23 +196,23 @@ model WorkLocation {
 // ---------------------------------------------------------------------------
 
 model AttendanceDevice {
-  id              String                   @id @default(cuid())
-  name            String
-  deviceCode      String                   @unique
-  sourceType      AttendanceSourceType
-  deviceType      AttendanceDeviceType
-  vendor          String?
-  model           String?
-  serialNumber    String?                  @unique
-  workLocationId  String
-  ipAddress       String?
-  port            Int?
-  connectionMode  AttendanceConnectionMode @default(UNKNOWN)
-  isActive        Boolean                  @default(true)
-  lastSyncAt      DateTime?
-  notes           String?
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  id             String                   @id @default(cuid())
+  name           String
+  deviceCode     String                   @unique
+  sourceType     AttendanceSourceType
+  deviceType     AttendanceDeviceType
+  vendor         String?
+  model          String?
+  serialNumber   String?                  @unique
+  workLocationId String
+  ipAddress      String?
+  port           Int?
+  connectionMode AttendanceConnectionMode @default(UNKNOWN)
+  isActive       Boolean                  @default(true)
+  lastSyncAt     DateTime?
+  notes          String?
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
 
   workLocation WorkLocation         @relation(fields: [workLocationId], references: [id])
   rawPunches   AttendanceRawPunch[]
@@ -203,24 +225,37 @@ model AttendanceDevice {
 }
 
 model MobileDevice {
-  id               String    @id @default(cuid())
+  id               String             @id @default(cuid())
   employeeId       String
-  deviceIdentifier String    @unique
-  deviceModel      String?
-  osName           String?
+  deviceIdentifier String             @unique
+  platform         MobilePlatform
+  deviceName       String?
+  manufacturer     String?
+  model            String?
   osVersion        String?
   appVersion       String?
   pushToken        String?
-  isActive         Boolean   @default(true)
-  registeredAt     DateTime  @default(now())
+  status           MobileDeviceStatus @default(PENDING_APPROVAL)
+  isPrimary        Boolean            @default(false)
+  approvedAt       DateTime?
+  approvedByUserId String?
+  blockedAt        DateTime?
+  blockedByUserId  String?
+  blockReason      String?
+  registeredAt     DateTime           @default(now())
   lastSeenAt       DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
 
   employee   Employee             @relation(fields: [employeeId], references: [id])
+  approvedBy User?                @relation("MobileDeviceApprovedBy", fields: [approvedByUserId], references: [id])
+  blockedBy  User?                @relation("MobileDeviceBlockedBy", fields: [blockedByUserId], references: [id])
   rawPunches AttendanceRawPunch[]
 
   @@index([employeeId])
+  @@index([status])
+  @@index([platform])
+  @@index([isPrimary])
   @@map("mobile_devices")
 }
 
@@ -253,12 +288,12 @@ model Employee {
   designation  Designation?  @relation(fields: [designationId], references: [id])
   workLocation WorkLocation? @relation(fields: [workLocationId], references: [id])
 
-  mobileDevices     MobileDevice[]
-  shiftAssignments  ShiftAssignment[]
-  rawPunches        AttendanceRawPunch[]
-  dailySummaries    AttendanceDailySummary[]
-  corrections       AttendanceCorrection[]
-  user              User?
+  mobileDevices    MobileDevice[]
+  shiftAssignments ShiftAssignment[]
+  rawPunches       AttendanceRawPunch[]
+  dailySummaries   AttendanceDailySummary[]
+  corrections      AttendanceCorrection[]
+  user             User?
 
   @@index([departmentId])
   @@index([designationId])
@@ -290,13 +325,13 @@ model Shift {
 }
 
 model ShiftAssignment {
-  id             String    @id @default(cuid())
-  employeeId     String
-  shiftId        String
-  effectiveFrom  DateTime
-  effectiveTo    DateTime?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  employeeId    String
+  shiftId       String
+  effectiveFrom DateTime
+  effectiveTo   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   employee Employee @relation(fields: [employeeId], references: [id])
   shift    Shift    @relation(fields: [shiftId], references: [id])
@@ -311,43 +346,48 @@ model ShiftAssignment {
 // ---------------------------------------------------------------------------
 
 model AttendanceRawPunch {
-  id                          String                @id @default(cuid())
-  employeeId                  String
-  punchType                   PunchType
-  sourceType                  AttendanceSourceType
-  sourceId                    String?
-  sourceDeviceId              String?
-  punchTimeSource             DateTime
-  punchTimeServer             DateTime
-  latitude                    Float?
-  longitude                   Float?
-  gpsAccuracy                 Float?
-  distanceFromLocationMeters  Float?
-  workLocationId              String?
-  mobileDeviceId              String?
-  attendanceDeviceId          String?
-  ipAddress                   String?
-  wifiSsid                    String?
-  wifiBssid                   String?
-  selfieFileId                String?
-  validationStatus            PunchValidationStatus
-  fraudScore                  Float                 @default(0)
-  fraudFlags                  Json                  @default("[]")
-  rawPayload                  Json                  @default("{}")
-  isOfficial                  Boolean               @default(false)
-  duplicateOfPunchId          String?
-  createdAt                   DateTime              @default(now())
+  id                         String                @id @default(cuid())
+  employeeId                 String
+  punchType                  PunchType
+  sourceType                 AttendanceSourceType
+  sourceId                   String?
+  sourceDeviceId             String?
+  punchTimeSource            DateTime
+  punchTimeServer            DateTime
+  latitude                   Float?
+  longitude                  Float?
+  gpsAccuracy                Float?
+  distanceFromLocationMeters Float?
+  workLocationId             String?
+  mobileDeviceId             String?
+  attendanceDeviceId         String?
+  ipAddress                  String?
+  wifiSsid                   String?
+  wifiBssid                  String?
+  selfieFileId               String?
+  validationStatus           PunchValidationStatus
+  fraudScore                 Float                 @default(0)
+  fraudFlags                 Json                  @default("[]")
+  rawPayload                 Json                  @default("{}")
+  isOfficial                 Boolean               @default(false)
+  duplicateOfPunchId         String?
+  validatedAt                DateTime?
+  validatedByUserId          String?
+  createdAt                  DateTime              @default(now())
 
-  employee         Employee            @relation(fields: [employeeId], references: [id])
-  workLocation     WorkLocation?       @relation(fields: [workLocationId], references: [id])
-  mobileDevice     MobileDevice?       @relation(fields: [mobileDeviceId], references: [id])
-  attendanceDevice AttendanceDevice?   @relation(fields: [attendanceDeviceId], references: [id])
+  employee         Employee          @relation(fields: [employeeId], references: [id])
+  workLocation     WorkLocation?     @relation(fields: [workLocationId], references: [id])
+  mobileDevice     MobileDevice?     @relation(fields: [mobileDeviceId], references: [id])
+  attendanceDevice AttendanceDevice? @relation(fields: [attendanceDeviceId], references: [id])
+  validatedBy      User?             @relation("PunchValidatedBy", fields: [validatedByUserId], references: [id])
 
-  duplicateOfPunch  AttendanceRawPunch?  @relation("PunchDuplicateOf", fields: [duplicateOfPunchId], references: [id])
-  duplicatePunches  AttendanceRawPunch[] @relation("PunchDuplicateOf")
+  duplicateOfPunch AttendanceRawPunch?  @relation("PunchDuplicateOf", fields: [duplicateOfPunchId], references: [id])
+  duplicatePunches AttendanceRawPunch[] @relation("PunchDuplicateOf")
 
   summariesAsOfficialIn  AttendanceDailySummary[] @relation("SummaryOfficialInPunch")
   summariesAsOfficialOut AttendanceDailySummary[] @relation("SummaryOfficialOutPunch")
+
+  targetedByCorrections AttendanceCorrection[] @relation("CorrectionTargetPunch")
 
   @@unique([attendanceDeviceId, sourceId])
   @@index([employeeId, punchTimeServer])
@@ -365,23 +405,23 @@ model AttendanceRawPunch {
 // ---------------------------------------------------------------------------
 
 model AttendanceDailySummary {
-  id                  String                 @id @default(cuid())
-  employeeId          String
-  workDate            DateTime
-  officialInPunchId   String?
-  officialOutPunchId  String?
-  officialInTime      DateTime?
-  officialOutTime     DateTime?
-  totalWorkedMinutes  Int                    @default(0)
-  lateMinutes         Int                    @default(0)
-  earlyLeaveMinutes   Int                    @default(0)
-  overtimeMinutes     Int                    @default(0)
-  status              DailyAttendanceStatus
-  calculationVersion  Int                    @default(1)
-  calculatedAt        DateTime
-  lockedAt            DateTime?
-  createdAt           DateTime               @default(now())
-  updatedAt           DateTime               @updatedAt
+  id                 String                @id @default(cuid())
+  employeeId         String
+  workDate           DateTime
+  officialInPunchId  String?
+  officialOutPunchId String?
+  officialInTime     DateTime?
+  officialOutTime    DateTime?
+  totalWorkedMinutes Int                   @default(0)
+  lateMinutes        Int                   @default(0)
+  earlyLeaveMinutes  Int                   @default(0)
+  overtimeMinutes    Int                   @default(0)
+  status             DailyAttendanceStatus
+  calculationVersion Int                   @default(1)
+  calculatedAt       DateTime
+  lockedAt           DateTime?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
 
   employee         Employee            @relation(fields: [employeeId], references: [id])
   officialInPunch  AttendanceRawPunch? @relation("SummaryOfficialInPunch", fields: [officialInPunchId], references: [id])
@@ -404,21 +444,29 @@ model AttendanceCorrection {
   requestedByUserId  String
   reason             String
   status             CorrectionStatus @default(PENDING)
+  correctionType     CorrectionType
+  requestedPunchType PunchType?
+  requestedPunchTime DateTime?
+  targetPunchId      String?
   beforeSnapshot     Json
   afterSnapshot      Json
   approvedByUserId   String?
+  approvedAt         DateTime?
   rejectedReason     String?
+  rejectedAt         DateTime?
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
 
-  employee    Employee @relation(fields: [employeeId], references: [id])
-  requestedBy User     @relation("CorrectionRequestedBy", fields: [requestedByUserId], references: [id])
-  approvedBy  User?    @relation("CorrectionApprovedBy", fields: [approvedByUserId], references: [id])
+  employee    Employee            @relation(fields: [employeeId], references: [id])
+  requestedBy User                @relation("CorrectionRequestedBy", fields: [requestedByUserId], references: [id])
+  approvedBy  User?               @relation("CorrectionApprovedBy", fields: [approvedByUserId], references: [id])
+  targetPunch AttendanceRawPunch? @relation("CorrectionTargetPunch", fields: [targetPunchId], references: [id])
 
   @@index([employeeId, workDate])
   @@index([status])
   @@index([requestedByUserId])
   @@index([approvedByUserId])
+  @@index([targetPunchId])
   @@map("attendance_corrections")
 }
 
@@ -427,17 +475,21 @@ model AttendanceCorrection {
 // ---------------------------------------------------------------------------
 
 model AttendancePayrollLock {
-  id               String             @id @default(cuid())
+  id               String            @id @default(cuid())
   periodStart      DateTime
   periodEnd        DateTime
-  status           PayrollLockStatus  @default(OPEN)
+  status           PayrollLockStatus @default(OPEN)
+  reason           String?
+  notes            String?
+  createdByUserId  String?
   lockedByUserId   String?
   lockedAt         DateTime?
+  summaryCount     Int?
   reopenedByUserId String?
   reopenedAt       DateTime?
   reopenReason     String?
-  createdAt        DateTime           @default(now())
-  updatedAt        DateTime           @updatedAt
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
   @@unique([periodStart, periodEnd])
   @@index([periodStart, periodEnd])
@@ -474,26 +526,32 @@ model AuditLog {
 // ---------------------------------------------------------------------------
 
 model User {
-  id                  String     @id @default(cuid())
-  employeeId          String?    @unique
-  username            String     @unique
-  email               String?    @unique
-  passwordHash        String
-  status              UserStatus @default(ACTIVE)
-  mustChangePassword  Boolean    @default(false)
-  lastLoginAt         DateTime?
-  failedLoginAttempts Int        @default(0)
-  lockedUntil         DateTime?
-  createdAt           DateTime   @default(now())
-  updatedAt           DateTime   @updatedAt
+  id                          String     @id @default(cuid())
+  employeeId                  String?    @unique
+  username                    String     @unique
+  email                       String?    @unique
+  passwordHash                String
+  status                      UserStatus @default(ACTIVE)
+  mustChangePassword          Boolean    @default(false)
+  lastLoginAt                 DateTime?
+  failedLoginAttempts         Int        @default(0)
+  lockedUntil                 DateTime?
+  temporaryPasswordIssuedAt   DateTime?
+  passwordChangedAt           DateTime?
+  passwordReminderDismissedAt DateTime?
+  createdAt                   DateTime   @default(now())
+  updatedAt                   DateTime   @updatedAt
 
   employee Employee? @relation(fields: [employeeId], references: [id])
 
-  userRoles            UserRole[]
-  refreshTokens        RefreshToken[]
-  requestedCorrections AttendanceCorrection[] @relation("CorrectionRequestedBy")
-  approvedCorrections  AttendanceCorrection[] @relation("CorrectionApprovedBy")
-  auditLogs            AuditLog[]
+  userRoles             UserRole[]
+  refreshTokens         RefreshToken[]
+  requestedCorrections  AttendanceCorrection[] @relation("CorrectionRequestedBy")
+  approvedCorrections   AttendanceCorrection[] @relation("CorrectionApprovedBy")
+  auditLogs             AuditLog[]
+  approvedMobileDevices MobileDevice[]         @relation("MobileDeviceApprovedBy")
+  blockedMobileDevices  MobileDevice[]         @relation("MobileDeviceBlockedBy")
+  validatedPunches      AttendanceRawPunch[]   @relation("PunchValidatedBy")
 
   @@index([status])
   @@map("users")
@@ -556,14 +614,14 @@ model RolePermission {
 }
 
 model RefreshToken {
-  id         String    @id @default(cuid())
-  userId     String
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  ipAddress  String?
-  userAgent  String?
-  createdAt  DateTime  @default(now())
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime  @default(now())
 
   user User @relation(fields: [userId], references: [id])
 

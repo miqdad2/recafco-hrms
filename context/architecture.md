@@ -332,6 +332,11 @@ Redis must not be the source of truth for attendance or payroll data.
 - `departments.read` / `departments.create` / `departments.update` / `departments.disable`
 - `designations.read` / `designations.create` / `designations.update` / `designations.disable`
 - `workLocations.read` / `workLocations.create` / `workLocations.update` / `workLocations.disable`
+- `attendanceDevices.read` / `attendanceDevices.create` / `attendanceDevices.update` / `attendanceDevices.disable` / `attendanceDevices.testConnection`
+- `mobileDevices.read` / `mobileDevices.register` / `mobileDevices.approve` / `mobileDevices.block` / `mobileDevices.reset` / `mobileDevices.update`
+- `attendancePunches.read` / `attendancePunches.createMobile` / `attendancePunches.createDeviceImport` / `attendancePunches.createManual` / `attendancePunches.readOwn` / `attendancePunches.validate`
+- `attendanceSummaries.read` / `attendanceSummaries.readOwn` / `attendanceSummaries.calculate` / `attendanceSummaries.recalculate`
+- `attendanceCorrections.read` / `attendanceCorrections.readOwn` / `attendanceCorrections.request` / `attendanceCorrections.approve` / `attendanceCorrections.reject`
 - `leave.request`
 - `leave.approve.manager`
 - `leave.manage.hr`

@@ -2,14 +2,30 @@ packages:
   - apps/*
   - packages/*
 
+# @hookform/resolvers/zod imports `zod` (and, in v4, the `zod/v4/core` subpath) without
+# declaring `zod` as a real dependency or peerDependency of its own package.json — it has
+# always relied on pnpm coincidentally hoisting/phantom-linking some zod copy into its own
+# node_modules scope. That happened to work by luck across Units 12-17, then broke for
+# apps/web the moment an unrelated lockfile-wide re-resolution (installing expo-location
+# into apps/mobile in Unit 18) changed which packages get hoisted where. This declares the
+# real dependency pnpm should have inferred, so resolution no longer depends on luck.
+packageExtensions:
+  '@hookform/resolvers':
+    dependencies:
+      zod: '*'
+
 allowBuilds:
   '@prisma/client': true
   '@prisma/engines': true
   prisma: true
   argon2: true
+  sharp: true
+  unrs-resolver: true
 
 onlyBuiltDependencies:
   - '@prisma/client'
   - '@prisma/engines'
   - prisma
   - argon2
+  - sharp
+  - unrs-resolver

@@ -1,20 +1,19 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import { randomUUID } from 'crypto';
 import { AuditService } from '../audit/audit.service';
 import type { EnvConfig } from '../config/env.schema';
+import { toJsonSnapshot } from '../common/audit-snapshot.util';
+import type { RequestContext } from '../common/request-context.util';
 import { DatabaseService } from '../database/database.service';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshTokenDto } from './dto/refresh-token.dto';
-import { verifyPassword } from './password.util';
+import { validatePasswordPolicy } from './password-policy.util';
+import { hashPassword, verifyPassword } from './password.util';
 import { hashToken } from './token-hash.util';
-import type {
-  AccessTokenPayload,
-  RefreshTokenPayload,
-  RequestContext,
-  TokenPair,
-} from './types/auth.types';
+import type { AccessTokenPayload, RefreshTokenPayload, TokenPair } from './types/auth.types';
 
 const MAX_FAILED_LOGIN_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
@@ -205,6 +204,8 @@ export class AuthService {
     status: string;
     mustChangePassword: boolean;
     lastLoginAt: Date | null;
+    temporaryPasswordIssuedAt: Date | null;
+    passwordChangedAt: Date | null;
     roles: string[];
     permissions: string[];
   }> {
@@ -223,9 +224,63 @@ export class AuthService {
       status: user.status,
       mustChangePassword: user.mustChangePassword,
       lastLoginAt: user.lastLoginAt,
+      temporaryPasswordIssuedAt: user.temporaryPasswordIssuedAt,
+      passwordChangedAt: user.passwordChangedAt,
       roles,
       permissions,
     };
+  }
+
+  async changePassword(userId: string, dto: ChangePasswordDto, context: RequestContext): Promise<void> {
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    const currentValid = await verifyPassword(user.passwordHash, dto.currentPassword);
+    if (!currentValid) {
+      throw new UnauthorizedException('Current password is incorrect');
+    }
+
+    if (dto.newPassword !== dto.confirmPassword) {
+      throw new BadRequestException('New password and confirmation do not match');
+    }
+    if (dto.newPassword === dto.currentPassword) {
+      throw new BadRequestException('New password must be different from the current password');
+    }
+
+    const policyError = validatePasswordPolicy(dto.newPassword, user.username);
+    if (policyError) {
+      throw new BadRequestException(policyError);
+    }
+
+    const passwordHash = await hashPassword(dto.newPassword);
+    const now = new Date();
+
+    // Revokes every refresh token for this user, not just the ones from other sessions — the
+    // access token payload has no session/jti linking it back to a specific refresh token, so
+    // "except current" isn't cheaply derivable here. Documented as a future improvement (see
+    // progress-tracker.md) rather than approximated with a guess.
+    await this.prisma.$transaction([
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { passwordHash, mustChangePassword: false, passwordChangedAt: now },
+      }),
+      this.prisma.refreshToken.updateMany({
+        where: { userId, revokedAt: null },
+        data: { revokedAt: now },
+      }),
+    ]);
+
+    await this.auditService.record({
+      actorUserId: userId,
+      entityType: 'User',
+      entityId: userId,
+      action: 'USER_PASSWORD_CHANGED',
+      afterSnapshot: toJsonSnapshot({ mustChangePassword: false, passwordChangedAt: now }),
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
   }
 
   private async resolveRolesAndPermissions(

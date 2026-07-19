@@ -1,12 +1,15 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { EmployeeStatus, type Prisma } from '@recafco/db';
 import { AuditService } from '../audit/audit.service';
+import { hashPassword } from '../auth/password.util';
+import { validatePasswordPolicy } from '../auth/password-policy.util';
 import { toJsonSnapshot } from '../common/audit-snapshot.util';
 import { paginate, paginationSkip, type PaginatedResult } from '../common/pagination.util';
 import { isUniqueConstraintError } from '../common/prisma-error.util';
 import type { RequestContext } from '../common/request-context.util';
 import { DatabaseService } from '../database/database.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { CreateEmployeeUserAccountDto } from './dto/create-employee-user-account.dto';
 import { ListEmployeesQueryDto } from './dto/list-employees.query.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 
@@ -14,6 +17,7 @@ const RELATIONS_INCLUDE = {
   department: { select: { id: true, name: true, code: true } },
   designation: { select: { id: true, title: true, code: true } },
   workLocation: { select: { id: true, name: true, code: true } },
+  user: { select: { id: true, username: true, status: true, mustChangePassword: true } },
 } satisfies Prisma.EmployeeInclude;
 
 type EmployeeWithRelations = Prisma.EmployeeGetPayload<{ include: typeof RELATIONS_INCLUDE }>;
@@ -220,5 +224,85 @@ export class EmployeesService {
     });
 
     return this.toResponse(updated);
+  }
+
+  async createUserAccount(
+    employeeId: string,
+    dto: CreateEmployeeUserAccountDto,
+    actorUserId: string,
+    context: RequestContext,
+  ): Promise<{
+    user: { id: string; username: string; employeeId: string; status: string; mustChangePassword: boolean };
+    temporaryPassword: string;
+  }> {
+    const employee = await this.prisma.employee.findUnique({ where: { id: employeeId }, include: { user: true } });
+    if (!employee) {
+      throw new NotFoundException('Employee not found');
+    }
+    if (employee.status !== EmployeeStatus.ACTIVE) {
+      throw new BadRequestException('Login accounts can only be created for active employees');
+    }
+    if (employee.user) {
+      throw new ConflictException('This employee already has a login account');
+    }
+
+    const username = employee.employeeCode;
+    const existingUsername = await this.prisma.user.findUnique({ where: { username } });
+    if (existingUsername) {
+      throw new ConflictException('A user account with this username already exists');
+    }
+
+    const temporaryPassword = dto.temporaryPassword ?? `Recafco@${employee.employeeCode}`;
+    const policyError = validatePasswordPolicy(temporaryPassword, username);
+    if (policyError) {
+      throw new BadRequestException(policyError);
+    }
+
+    const employeeRole = await this.prisma.role.findUnique({ where: { code: 'EMPLOYEE' } });
+    if (!employeeRole) {
+      throw new BadRequestException('EMPLOYEE role is not configured — run the RBAC bootstrap first');
+    }
+
+    const passwordHash = await hashPassword(temporaryPassword);
+    const now = new Date();
+
+    const user = await this.prisma.user.create({
+      data: {
+        employeeId,
+        username,
+        passwordHash,
+        mustChangePassword: true,
+        temporaryPasswordIssuedAt: now,
+        userRoles: { create: { roleId: employeeRole.id } },
+      },
+    });
+
+    await this.auditService.record({
+      actorUserId,
+      entityType: 'User',
+      entityId: user.id,
+      action: 'EMPLOYEE_USER_ACCOUNT_CREATED',
+      afterSnapshot: toJsonSnapshot({
+        id: user.id,
+        username: user.username,
+        employeeId: user.employeeId,
+        status: user.status,
+        mustChangePassword: user.mustChangePassword,
+        temporaryPasswordIssuedAt: user.temporaryPasswordIssuedAt,
+      }),
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
+
+    return {
+      user: {
+        id: user.id,
+        username: user.username,
+        employeeId,
+        status: user.status,
+        mustChangePassword: user.mustChangePassword,
+      },
+      temporaryPassword,
+    };
   }
 }

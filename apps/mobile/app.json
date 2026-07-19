@@ -1,0 +1,41 @@
+{
+  "expo": {
+    "name": "RECAFCO HRMS",
+    "slug": "recafco-hrms",
+    "scheme": "recafco-hrms",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "bundleIdentifier": "com.recafco.hrms",
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.recafco.hrms",
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "RECAFCO HRMS uses your location only while the app is open, to verify your work location when you check in or out."
+        }
+      ]
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "5bccd2cf-2037-489d-b559-d048f5dbfb66"
+      }
+    },
+    "owner": "miqdad8848"
+  }
+}

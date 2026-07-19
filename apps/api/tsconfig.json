@@ -5,7 +5,6 @@
     "moduleResolution": "node10",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "declaration": true,
     "sourceMap": true,
     "incremental": true,
     "outDir": "./dist",

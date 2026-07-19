@@ -8,6 +8,7 @@ import type { AuthenticatedUser } from '../auth/types/auth.types';
 import { ParseCuidPipe } from '../common/pipes/parse-cuid.pipe';
 import { getRequestContext } from '../common/request-context.util';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
+import { CreateEmployeeUserAccountDto } from './dto/create-employee-user-account.dto';
 import { ListEmployeesQueryDto } from './dto/list-employees.query.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
 import { EmployeesService } from './employees.service';
@@ -50,5 +51,16 @@ export class EmployeesController {
   @Permissions('employees.disable')
   terminate(@Param('id', ParseCuidPipe) id: string, @CurrentUser() user: AuthenticatedUser, @Req() req: Request) {
     return this.employeesService.terminate(id, user.userId, getRequestContext(req));
+  }
+
+  @Post(':id/create-user')
+  @Permissions('employees.createUserAccount')
+  createUserAccount(
+    @Param('id', ParseCuidPipe) id: string,
+    @Body() dto: CreateEmployeeUserAccountDto,
+    @CurrentUser() user: AuthenticatedUser,
+    @Req() req: Request,
+  ) {
+    return this.employeesService.createUserAccount(id, dto, user.userId, getRequestContext(req));
   }
 }
