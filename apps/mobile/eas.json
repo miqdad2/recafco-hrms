@@ -7,6 +7,9 @@
     "preview": {
       "node": "22.13.0",
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "http://192.168.1.17:4002"
+      },
       "android": {
         "buildType": "apk"
       }
