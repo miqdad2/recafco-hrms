@@ -3,6 +3,7 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -48,7 +49,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Text style={styles.title}>RECAFCO HRMS</Text>
+        <Image source={require('../assets/icon.png')} style={styles.logo} resizeMode="contain" />
         <Text style={styles.subtitle}>Sign in to continue</Text>
 
         <View style={styles.field}>
@@ -111,7 +112,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bgBase },
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  title: { fontSize: 28, fontWeight: '700', color: colors.textPrimary, textAlign: 'center' },
+  logo: { width: 200, height: 200, alignSelf: 'center' },
   subtitle: { fontSize: 15, color: colors.textSecondary, textAlign: 'center', marginTop: 4, marginBottom: 32 },
   field: { marginBottom: 16 },
   label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 6 },
