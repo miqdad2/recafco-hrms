@@ -1,29 +1,24 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import {
   AttendanceSourceType,
   EmployeeStatus,
   MobileDeviceStatus,
   PunchValidationStatus,
+  type AttendanceDailySummary,
   type AttendanceRawPunch,
   type Prisma,
   type WorkLocation,
 } from '@recafco/db';
+import { AttendanceSummaryCalculatorService } from '../attendance-summaries/attendance-summary-calculator.service';
+import { toKuwaitWorkDate } from '../attendance-summaries/kuwait-date.util';
 import { AuditService } from '../audit/audit.service';
 import { toJsonSnapshot } from '../common/audit-snapshot.util';
 import { dateRangeFilter } from '../common/date-range.util';
+import { PayrollLockGuardService } from '../payroll-locks/payroll-lock-guard.service';
 import type { RequestContext } from '../common/request-context.util';
 import { DatabaseService } from '../database/database.service';
+import { DUPLICATE_WINDOW_MINUTES, MOBILE_GPS_ACCURACY_MAX_METERS } from './attendance-validation.constants';
 import { ValidatePendingDto } from './dto/validate-pending.dto';
-
-/**
- * A punch is treated as a duplicate of another if they share employee/punchType/sourceType
- * and either the same sourceId, or (when no sourceId is available, e.g. mobile/manual punches)
- * their source-reported timestamps fall within this window of each other.
- */
-const DUPLICATE_TIME_WINDOW_MINUTES = 2;
-
-/** Above this accuracy radius (meters), a mobile GPS fix is treated as too weak to trust outright. */
-const GPS_ACCURACY_POOR_THRESHOLD_METERS = 50;
 
 const ENGINE_FLAG_SOURCE = 'VALIDATION_ENGINE';
 
@@ -78,10 +73,20 @@ interface ValidationComputation {
 }
 
 interface ValidatePendingSummary {
+  /** Kept for backward compatibility with the existing admin web screen — do not rename. */
   totalProcessed: number;
   accepted: number;
   rejected: number;
   pending: number;
+  /** New in Unit 20.1. */
+  summariesRecalculated: number;
+  skippedLocked: number;
+}
+
+interface PunchProcessingResult {
+  punch: AttendanceRawPunch;
+  summary: AttendanceDailySummary | null;
+  skippedLocked: boolean;
 }
 
 @Injectable()
@@ -89,10 +94,61 @@ export class AttendanceValidationService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly auditService: AuditService,
+    private readonly attendanceSummaryCalculatorService: AttendanceSummaryCalculatorService,
+    private readonly payrollLockGuardService: PayrollLockGuardService,
   ) {}
 
   private get prisma() {
     return this.databaseService.client;
+  }
+
+  /**
+   * The automated path: called immediately after a mobile/device-import/manual raw punch is
+   * created (same request, no background job). Runs the same deterministic rule engine
+   * `validatePunch` uses, but records it under the new "AUTO_*" audit vocabulary (actorUserId
+   * `null` — no human reviewed this row, the engine decided it) and, if accepted, immediately
+   * recalculates the employee's daily summary.
+   */
+  async processNewPunch(
+    punch: AttendanceRawPunch,
+    requestActorUserId: string,
+    context: RequestContext,
+  ): Promise<PunchProcessingResult> {
+    const before = punch;
+    const updated = await this.computeAndApplyValidation(punch, undefined);
+
+    const action = updated.validationStatus.startsWith('ACCEPTED')
+      ? 'ATTENDANCE_PUNCH_AUTO_VALIDATED'
+      : updated.validationStatus.startsWith('REJECTED')
+        ? 'ATTENDANCE_PUNCH_AUTO_REJECTED'
+        : 'ATTENDANCE_PUNCH_SENT_TO_REVIEW';
+
+    await this.auditService.record({
+      actorUserId: null,
+      entityType: 'AttendanceRawPunch',
+      entityId: updated.id,
+      action,
+      beforeSnapshot: toJsonSnapshot(before),
+      afterSnapshot: toJsonSnapshot(updated),
+      ipAddress: context.ipAddress,
+      userAgent: context.userAgent,
+    });
+
+    const { summary, skippedLocked } = await this.recalculateIfAccepted(
+      updated,
+      requestActorUserId,
+      context,
+      /* automated */ true,
+    );
+
+    // recalculateIfAccepted mutates this punch row after `updated` was captured above — either
+    // the summary calculator flips `isOfficial` on the winning IN/OUT punch in its own
+    // transaction, or (when the date is locked) flagLockedPeriodPunch appends
+    // LOCKED_PERIOD_LATE_PUNCH to fraudFlags. Re-fetch in either case so the response accurately
+    // reflects the punch's final state rather than the pre-recalculation snapshot.
+    const finalPunch = summary || skippedLocked ? await this.refetchPunch(updated.id) : updated;
+
+    return { punch: finalPunch, summary, skippedLocked };
   }
 
   async validatePunch(punchId: string, actorUserId: string, context: RequestContext): Promise<AttendanceRawPunch> {
@@ -114,7 +170,19 @@ export class AttendanceValidationService {
       userAgent: context.userAgent,
     });
 
-    return updated;
+    const { summary, skippedLocked } = await this.recalculateIfAccepted(
+      updated,
+      actorUserId,
+      context,
+      /* automated */ false,
+    );
+
+    return summary || skippedLocked ? await this.refetchPunch(updated.id) : updated;
+  }
+
+  private async refetchPunch(punchId: string): Promise<AttendanceRawPunch> {
+    const punch = await this.prisma.attendanceRawPunch.findUniqueOrThrow({ where: { id: punchId } });
+    return punch;
   }
 
   async validatePending(
@@ -142,7 +210,14 @@ export class AttendanceValidationService {
       orderBy: { punchTimeServer: 'asc' },
     });
 
-    const summary: ValidatePendingSummary = { totalProcessed: pending.length, accepted: 0, rejected: 0, pending: 0 };
+    const summary: ValidatePendingSummary = {
+      totalProcessed: pending.length,
+      accepted: 0,
+      rejected: 0,
+      pending: 0,
+      summariesRecalculated: 0,
+      skippedLocked: 0,
+    };
     const processedPunchIds: string[] = [];
 
     for (const punch of pending) {
@@ -150,6 +225,18 @@ export class AttendanceValidationService {
       processedPunchIds.push(updated.id);
       if (updated.validationStatus.startsWith('ACCEPTED')) {
         summary.accepted += 1;
+        const { summary: recalculated, skippedLocked } = await this.recalculateIfAccepted(
+          updated,
+          actorUserId,
+          context,
+          /* automated */ true,
+        );
+        if (recalculated) {
+          summary.summariesRecalculated += 1;
+        }
+        if (skippedLocked) {
+          summary.skippedLocked += 1;
+        }
       } else if (updated.validationStatus.startsWith('REJECTED')) {
         summary.rejected += 1;
       } else {
@@ -168,6 +255,71 @@ export class AttendanceValidationService {
     });
 
     return summary;
+  }
+
+  /**
+   * Shared by every call site that can produce a freshly-ACCEPTED/ACCEPTED_WITH_WARNING punch
+   * (auto-creation, single validate, batch validate-pending): recalculates the employee's daily
+   * summary for the punch's Kuwait workDate, unless that date falls inside a LOCKED payroll
+   * period — in which case the punch is left exactly as validated (still ACCEPTED, still stored
+   * as evidence) but the summary/official flags are never touched, and a LOCKED_PERIOD_LATE_PUNCH
+   * flag is added so HR's exception view can find it later.
+   */
+  private async recalculateIfAccepted(
+    punch: AttendanceRawPunch,
+    requestActorUserId: string,
+    context: RequestContext,
+    automated: boolean,
+  ): Promise<{ summary: AttendanceDailySummary | null; skippedLocked: boolean }> {
+    if (!punch.validationStatus.startsWith('ACCEPTED')) {
+      return { summary: null, skippedLocked: false };
+    }
+
+    const workDate = toKuwaitWorkDate(punch.punchTimeSource);
+    const isLocked = await this.payrollLockGuardService.isDateInLockedPeriod(workDate);
+    if (isLocked) {
+      await this.flagLockedPeriodPunch(punch);
+      return { summary: null, skippedLocked: true };
+    }
+
+    try {
+      const recalculatedSummary = await this.attendanceSummaryCalculatorService.calculateForEmployeeDate(
+        punch.employeeId,
+        workDate.toISOString(),
+        requestActorUserId,
+        context,
+      );
+
+      await this.auditService.record({
+        actorUserId: automated ? null : requestActorUserId,
+        entityType: 'AttendanceDailySummary',
+        entityId: recalculatedSummary.id,
+        action: 'ATTENDANCE_SUMMARY_AUTO_RECALCULATED',
+        afterSnapshot: toJsonSnapshot({ summary: recalculatedSummary, triggeredByPunchId: punch.id, automated }),
+        ipAddress: context.ipAddress,
+        userAgent: context.userAgent,
+      });
+
+      return { summary: recalculatedSummary, skippedLocked: false };
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        await this.flagLockedPeriodPunch(punch);
+        return { summary: null, skippedLocked: true };
+      }
+      throw error;
+    }
+  }
+
+  private async flagLockedPeriodPunch(punch: AttendanceRawPunch): Promise<void> {
+    const flags = this.toFlagArray(punch.fraudFlags);
+    if (flags.some((flag) => flag.flag === 'LOCKED_PERIOD_LATE_PUNCH')) {
+      return;
+    }
+    this.pushFlag(flags, 'LOCKED_PERIOD_LATE_PUNCH');
+    await this.prisma.attendanceRawPunch.update({
+      where: { id: punch.id },
+      data: { fraudFlags: toJsonSnapshot(flags) },
+    });
   }
 
   private async computeAndApplyValidation(punch: AttendanceRawPunch, actorUserId?: string): Promise<AttendanceRawPunch> {
@@ -221,7 +373,12 @@ export class AttendanceValidationService {
     if (punch.sourceType === AttendanceSourceType.MANUAL_CORRECTION) {
       sourceResult = this.validateManualPunch(punch);
     } else if (punch.sourceType === AttendanceSourceType.MOBILE) {
-      sourceResult = await this.validateMobilePunch(punch, employee.isMobilePunchAllowed, employee.isDeviceOnly);
+      sourceResult = await this.validateMobilePunch(
+        punch,
+        employee.isMobilePunchAllowed,
+        employee.isDeviceOnly,
+        employee.workLocationId,
+      );
     } else {
       sourceResult = await this.validateDevicePunch(punch);
     }
@@ -241,6 +398,7 @@ export class AttendanceValidationService {
     punch: AttendanceRawPunch,
     isMobilePunchAllowed: boolean,
     isDeviceOnly: boolean,
+    employeeDefaultWorkLocationId: string | null,
   ): Promise<SourceValidationResult> {
     const flags: Record<string, unknown>[] = [];
 
@@ -272,7 +430,16 @@ export class AttendanceValidationService {
       };
     }
     if (device.status !== MobileDeviceStatus.APPROVED) {
-      this.pushFlag(flags, 'DEVICE_NOT_APPROVED', { deviceStatus: device.status });
+      // Distinct flags per status — not strictly needed to pick the (single) resulting
+      // PunchValidationStatus, but the exact reason matters a lot for a future HR exception
+      // dashboard trying to tell "never approved yet" apart from "was approved, then blocked".
+      const deviceFlag =
+        device.status === MobileDeviceStatus.BLOCKED
+          ? 'DEVICE_BLOCKED'
+          : device.status === MobileDeviceStatus.DEACTIVATED
+            ? 'DEVICE_DEACTIVATED'
+            : 'DEVICE_NOT_APPROVED';
+      this.pushFlag(flags, deviceFlag, { deviceStatus: device.status });
       return {
         statusCandidates: [PunchValidationStatus.REJECTED_UNREGISTERED_DEVICE],
         fraudScoreDelta: FRAUD_WEIGHTS.UNAPPROVED_DEVICE,
@@ -285,13 +452,28 @@ export class AttendanceValidationService {
     let distanceFromLocationMeters: number | undefined;
     let workLocation: WorkLocation | null = null;
 
-    if (punch.workLocationId) {
-      workLocation = await this.prisma.workLocation.findUnique({ where: { id: punch.workLocationId } });
+    // Option B (preferred, per Unit 20.1's own decision): the mobile app does not currently
+    // send `workLocationId` on every punch (Unit 17 scoped that out), so falling back to the
+    // employee's own assigned `workLocationId` is what actually makes geofence checking happen
+    // for real mobile punches at all, rather than silently skipping it whenever the client
+    // didn't supply one.
+    let resolvedWorkLocationId = punch.workLocationId;
+    let workLocationWasInferred = false;
+    if (!resolvedWorkLocationId && employeeDefaultWorkLocationId) {
+      resolvedWorkLocationId = employeeDefaultWorkLocationId;
+      workLocationWasInferred = true;
+    }
+
+    if (resolvedWorkLocationId) {
+      workLocation = await this.prisma.workLocation.findUnique({ where: { id: resolvedWorkLocationId } });
       if (!workLocation || !workLocation.isActive) {
         this.pushFlag(flags, 'WORK_LOCATION_INACTIVE');
         fraudScoreDelta += FRAUD_WEIGHTS.INACTIVE_WORK_LOCATION;
         statusCandidates.push(PunchValidationStatus.REJECTED_POLICY_VIOLATION);
         workLocation = null;
+      } else if (workLocationWasInferred) {
+        // Informational only — not a blocking condition, just useful context for review.
+        this.pushFlag(flags, 'WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT', { workLocationId: resolvedWorkLocationId });
       }
     }
 
@@ -310,22 +492,33 @@ export class AttendanceValidationService {
         fraudScoreDelta += FRAUD_WEIGHTS.OUTSIDE_GEOFENCE;
         statusCandidates.push(PunchValidationStatus.REJECTED_OUTSIDE_LOCATION);
       }
+    } else if (!resolvedWorkLocationId) {
+      // Neither the punch nor the employee record has a work location to check against —
+      // genuinely can't run a geofence check either way (Option A fallback, only reached when
+      // Option B above has nothing to offer).
+      this.pushFlag(flags, 'WORK_LOCATION_NOT_ASSIGNED');
+      statusCandidates.push(PunchValidationStatus.PENDING_HR_REVIEW);
     }
 
-    if (punch.gpsAccuracy != null && punch.gpsAccuracy > GPS_ACCURACY_POOR_THRESHOLD_METERS) {
+    if (punch.gpsAccuracy != null && punch.gpsAccuracy > MOBILE_GPS_ACCURACY_MAX_METERS) {
       this.pushFlag(flags, 'GPS_ACCURACY_POOR', { gpsAccuracy: punch.gpsAccuracy });
       fraudScoreDelta += FRAUD_WEIGHTS.POOR_GPS_ACCURACY;
       statusCandidates.push(PunchValidationStatus.PENDING_HR_REVIEW);
     }
 
     if (this.hasFraudSignal(punch.fraudFlags)) {
-      this.pushFlag(flags, 'CLIENT_SIGNAL_FAKE_GPS_OR_ROOT');
+      this.pushFlag(flags, 'FAKE_GPS_SIGNAL');
       fraudScoreDelta += FRAUD_WEIGHTS.FAKE_GPS_SIGNAL;
       statusCandidates.push(PunchValidationStatus.REJECTED_FAKE_GPS);
     }
 
+    // Clean: no candidate condition was raised at all — automatically ACCEPTED, not merely
+    // "with warning". ACCEPTED_WITH_WARNING is reserved for a source result that raises a
+    // non-blocking candidate of its own; today no mobile condition maps there directly (the
+    // borderline cases above are handled as PENDING_HR_REVIEW instead, per this unit's own
+    // "safer choice" policy), but the tier is kept for a future non-blocking condition.
     if (statusCandidates.length === 0) {
-      statusCandidates.push(PunchValidationStatus.ACCEPTED_WITH_WARNING);
+      statusCandidates.push(PunchValidationStatus.ACCEPTED);
     }
 
     const result: SourceValidationResult = { statusCandidates, fraudScoreDelta, fraudFlags: flags };
@@ -363,8 +556,10 @@ export class AttendanceValidationService {
       statusCandidates.push(PunchValidationStatus.REJECTED_POLICY_VIOLATION);
     }
 
+    // Physical punching devices are on company-controlled hardware at a fixed, already-vetted
+    // location — no GPS/geofence check is meaningful or required here (task rule C).
     if (statusCandidates.length === 0) {
-      statusCandidates.push(PunchValidationStatus.ACCEPTED_WITH_WARNING);
+      statusCandidates.push(PunchValidationStatus.ACCEPTED);
     }
 
     return { statusCandidates, fraudScoreDelta, fraudFlags: flags };
@@ -387,7 +582,13 @@ export class AttendanceValidationService {
       };
     }
 
-    // Manual punches always require human sign-off in this unit — never auto-accepted.
+    // Manual punches created directly (not via the approved correction workflow) always require
+    // human sign-off in this unit — never auto-accepted. The correction-approval flow
+    // (AttendanceCorrectionsService.approveCorrection) creates its own manual punch directly at
+    // ACCEPTED_WITH_WARNING and never routes through this validator at all — that is the one and
+    // only path a manual punch can become official through, matching this unit's own "manual
+    // correction punches should only become accepted through approved correction workflow"
+    // policy.
     return {
       statusCandidates: [PunchValidationStatus.PENDING_MANAGER_APPROVAL],
       fraudScoreDelta: 0,
@@ -400,7 +601,7 @@ export class AttendanceValidationService {
       return this.prisma.attendanceRawPunch.findUnique({ where: { id: punch.duplicateOfPunchId } });
     }
 
-    const windowMs = DUPLICATE_TIME_WINDOW_MINUTES * 60_000;
+    const windowMs = DUPLICATE_WINDOW_MINUTES * 60_000;
     const windowStart = new Date(punch.punchTimeSource.getTime() - windowMs);
     const windowEnd = new Date(punch.punchTimeSource.getTime() + windowMs);
 

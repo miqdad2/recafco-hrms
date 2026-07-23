@@ -195,6 +195,8 @@ export default function CorrectionsScreen() {
         hasEmployee ? <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} /> : undefined
       }
     >
+      <Text style={styles.pageTitle}>Corrections</Text>
+
       {!hasEmployee ? (
         <View style={[styles.section, styles.noticeCard]}>
           <Text style={styles.noticeText}>{NO_EMPLOYEE_MESSAGE}</Text>
@@ -436,6 +438,7 @@ export default function CorrectionsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   container: { padding: 20 },
+  pageTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginBottom: 16 },
   section: {
     backgroundColor: colors.bgSurface,
     borderRadius: 16,

@@ -50,3 +50,35 @@ export function formatMinutesAsHours(minutes: number): string {
   const mins = minutes % 60;
   return `${hours}h ${mins}m`;
 }
+
+export interface WeekDay {
+  dateString: string;
+  dayLabel: string;
+  dayNumber: number;
+  isToday: boolean;
+}
+
+const WEEKDAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+/** The current Sun–Sat Kuwait-calendar week, each day as a canonical UTC-midnight date string, for the Home screen's week strip. */
+export function getCurrentWeekDates(): WeekDay[] {
+  const todayString = getKuwaitTodayDateString();
+  const today = new Date(`${todayString}T00:00:00.000Z`);
+  const weekStart = new Date(today.getTime() - today.getUTCDay() * 24 * 60 * 60_000);
+
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(weekStart.getTime() + index * 24 * 60 * 60_000);
+    const dateString = formatUtcDateParts(date);
+    return {
+      dateString,
+      dayLabel: WEEKDAY_LABELS[date.getUTCDay()] ?? '',
+      dayNumber: date.getUTCDate(),
+      isToday: dateString === todayString,
+    };
+  });
+}
+
+/** Short weekday label for a `workDate` value (e.g. "Mon") — always read in UTC, matching `formatDateForDisplay`'s reasoning. */
+export function formatWeekdayForDisplay(workDateIso: string): string {
+  return new Date(workDateIso).toLocaleDateString(undefined, { weekday: 'short', timeZone: 'UTC' });
+}

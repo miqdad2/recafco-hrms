@@ -143,6 +143,9 @@ export interface ValidatePendingResult {
   accepted: number;
   rejected: number;
   pending: number;
+  /** New in Unit 20.1 — how many of the accepted punches above triggered a daily summary recalculation, and how many were skipped because their date falls inside a locked payroll period. */
+  summariesRecalculated: number;
+  skippedLocked: number;
 }
 
 export function listAttendancePunches(

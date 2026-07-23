@@ -177,6 +177,8 @@ export default function DeviceScreen() {
         hasEmployee ? <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} /> : undefined
       }
     >
+      <Text style={styles.pageTitle}>My Device</Text>
+
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>This Device</Text>
         <InfoRow label="Platform" value={deviceInfo.platform} />
@@ -256,6 +258,7 @@ export default function DeviceScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   container: { padding: 20 },
+  pageTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginBottom: 16 },
   section: {
     backgroundColor: colors.bgSurface,
     borderRadius: 16,

@@ -23,6 +23,7 @@ import {
   formatDateForDisplay,
   formatDateTimeForDisplay,
   formatMinutesAsHours,
+  formatWeekdayForDisplay,
   getKuwaitTodayDateString,
   kuwaitDateStringFromWorkDate,
 } from '../../src/lib/attendance/date-utils';
@@ -362,6 +363,8 @@ export default function AttendanceScreen() {
       contentContainerStyle={styles.container}
       refreshControl={hasEmployee ? <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} /> : undefined}
     >
+      <Text style={styles.pageTitle}>Attendance</Text>
+
       {!hasEmployee ? (
         <View style={[styles.section, styles.noticeCard]}>
           <Text style={styles.noticeText}>{NO_EMPLOYEE_MESSAGE}</Text>
@@ -439,7 +442,16 @@ export default function AttendanceScreen() {
           </View>
 
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Location Status</Text>
+            <View style={styles.sectionHeaderRow}>
+              <Text style={styles.sectionTitle}>Location Status</Text>
+              {/* A labeled status badge, not a toggle: GPS-based punching is already mandatory
+                  (architecture.md invariant #6 — mobile signals are hints, backend is
+                  authoritative), so a real on/off control would be misleading. This just makes
+                  that existing behavior explicit, closer to the benchmark app's framing. */}
+              <View style={styles.geoPunchBadge}>
+                <Text style={styles.geoPunchBadgeText}>Geo Punch Enabled</Text>
+              </View>
+            </View>
             {locationPermissionStatus === null ? (
               <ActivityIndicator color={colors.accentPrimary} style={styles.spinner} />
             ) : locationPermissionStatus === 'denied' ? (
@@ -574,7 +586,9 @@ export default function AttendanceScreen() {
               summaries.map((summary) => (
                 <View key={summary.id} style={styles.summaryRow}>
                   <View style={styles.summaryRowHeader}>
-                    <Text style={styles.summaryDate}>{formatDateForDisplay(summary.workDate)}</Text>
+                    <Text style={styles.summaryDate}>
+                      {formatDateForDisplay(summary.workDate)} · {formatWeekdayForDisplay(summary.workDate)}
+                    </Text>
                     <View
                       style={[
                         styles.punchStatusDot,
@@ -621,6 +635,14 @@ export default function AttendanceScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   container: { padding: 20 },
+  pageTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginBottom: 16 },
+  geoPunchBadge: {
+    backgroundColor: colors.success + '1a',
+    borderRadius: 20,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  geoPunchBadgeText: { fontSize: 11, fontWeight: '700', color: colors.success },
   section: {
     backgroundColor: colors.bgSurface,
     borderRadius: 16,

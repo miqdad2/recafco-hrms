@@ -22,6 +22,8 @@ export default function ProfileScreen() {
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
+      <Text style={styles.pageTitle}>Profile</Text>
+
       <View style={styles.section}>
         <Text style={styles.label}>Username</Text>
         <Text style={styles.value}>{user?.username}</Text>
@@ -73,6 +75,7 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   container: { padding: 20 },
+  pageTitle: { fontSize: 20, fontWeight: '700', color: colors.textPrimary, marginBottom: 16 },
   section: {
     backgroundColor: colors.bgSurface,
     borderRadius: 12,

@@ -8,6 +8,7 @@ import { paginate, paginationSkip, type PaginatedResult } from '../common/pagina
 import { isUniqueConstraintError } from '../common/prisma-error.util';
 import type { RequestContext } from '../common/request-context.util';
 import { DatabaseService } from '../database/database.service';
+import { AttendanceValidationService } from './attendance-validation.service';
 import { CreateDeviceImportPunchDto } from './dto/create-device-import-punch.dto';
 import { CreateManualPunchDto } from './dto/create-manual-punch.dto';
 import { CreateMobilePunchDto } from './dto/create-mobile-punch.dto';
@@ -26,6 +27,7 @@ export class AttendancePunchesService {
   constructor(
     private readonly databaseService: DatabaseService,
     private readonly auditService: AuditService,
+    private readonly attendanceValidationService: AttendanceValidationService,
   ) {}
 
   private get prisma() {
@@ -108,27 +110,12 @@ export class AttendancePunchesService {
       }
     }
 
+    // Resolved here purely to attach the FK (if a device row with this identifier exists at
+    // all) — deciding whether it's approved, belongs to this employee, etc. is
+    // AttendanceValidationService's job now, run immediately below, not duplicated here.
     const device = await this.prisma.mobileDevice.findUnique({ where: { deviceIdentifier: dto.deviceIdentifier } });
 
     const fraudFlags: Record<string, unknown>[] = [];
-    let validationStatus: PunchValidationStatus;
-    let mobileDeviceId: string | null = null;
-
-    if (!device) {
-      validationStatus = PunchValidationStatus.REJECTED_UNREGISTERED_DEVICE;
-      fraudFlags.push({ flag: 'DEVICE_NOT_REGISTERED', deviceIdentifier: dto.deviceIdentifier });
-    } else if (device.employeeId !== employeeId) {
-      validationStatus = PunchValidationStatus.REJECTED_UNREGISTERED_DEVICE;
-      fraudFlags.push({ flag: 'DEVICE_BELONGS_TO_DIFFERENT_EMPLOYEE', deviceIdentifier: dto.deviceIdentifier });
-    } else if (device.status !== 'APPROVED') {
-      validationStatus = PunchValidationStatus.REJECTED_UNREGISTERED_DEVICE;
-      mobileDeviceId = device.id;
-      fraudFlags.push({ flag: 'DEVICE_NOT_APPROVED', deviceStatus: device.status });
-    } else {
-      validationStatus = PunchValidationStatus.PENDING_HR_REVIEW;
-      mobileDeviceId = device.id;
-    }
-
     if (dto.fraudSignals) {
       fraudFlags.push({ flag: 'CLIENT_REPORTED_SIGNALS', signals: dto.fraudSignals });
     }
@@ -143,12 +130,14 @@ export class AttendancePunchesService {
       longitude: dto.longitude ?? null,
       gpsAccuracy: dto.gpsAccuracy ?? null,
       workLocationId: dto.workLocationId ?? null,
-      mobileDeviceId,
+      mobileDeviceId: device?.id ?? null,
       ipAddress: context.ipAddress,
       wifiSsid: dto.wifiSsid ?? null,
       wifiBssid: dto.wifiBssid ?? null,
       selfieFileId: dto.selfieFileId ?? null,
-      validationStatus,
+      // A safe placeholder — overwritten by the automated validation decision below, in the
+      // same request, before this response is returned.
+      validationStatus: PunchValidationStatus.PENDING_HR_REVIEW,
       fraudScore: 0,
       fraudFlags: toJsonSnapshot(fraudFlags),
       rawPayload: toJsonSnapshot({
@@ -170,7 +159,8 @@ export class AttendancePunchesService {
       userAgent: context.userAgent,
     });
 
-    return punch;
+    const { punch: processed } = await this.attendanceValidationService.processNewPunch(punch, userId, context);
+    return processed;
   }
 
   async createDeviceImport(dto: CreateDeviceImportPunchDto, actorUserId: string, context: RequestContext) {
@@ -225,7 +215,8 @@ export class AttendancePunchesService {
         userAgent: context.userAgent,
       });
 
-      return punch;
+      const { punch: processed } = await this.attendanceValidationService.processNewPunch(punch, actorUserId, context);
+      return processed;
     } catch (error) {
       if (isUniqueConstraintError(error) && dto.sourceId) {
         const existing = await this.prisma.attendanceRawPunch.findFirst({
@@ -270,6 +261,11 @@ export class AttendancePunchesService {
       userAgent: context.userAgent,
     });
 
-    return punch;
+    // Never produces an ACCEPTED-family status for a directly-entered manual punch (see
+    // AttendanceValidationService.validateManualPunch) — this only ever routes it to
+    // PENDING_MANAGER_APPROVAL or REJECTED_POLICY_VIOLATION, both of which skip summary
+    // recalculation. Manual punches become official only via the approved correction workflow.
+    const { punch: processed } = await this.attendanceValidationService.processNewPunch(punch, actorUserId, context);
+    return processed;
   }
 }
