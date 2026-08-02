@@ -3,7 +3,6 @@ import * as React from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import {
   ActivityIndicator,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,6 +15,7 @@ import {
 import { ApiError } from '../src/lib/api/client';
 import { useAuth } from '../src/lib/auth/auth-context';
 import { colors } from '../src/lib/theme';
+import { LogoBadge } from '../src/components/logo-badge';
 
 interface LoginFormValues {
   identifier: string;
@@ -49,7 +49,9 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <Image source={require('../assets/icon.png')} style={styles.logo} resizeMode="contain" />
+        <View style={styles.logoWrapper}>
+          <LogoBadge width={220} />
+        </View>
         <Text style={styles.subtitle}>Sign in to continue</Text>
 
         <View style={styles.field}>
@@ -112,7 +114,7 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   flex: { flex: 1, backgroundColor: colors.bgBase },
   container: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  logo: { width: 200, height: 200, alignSelf: 'center' },
+  logoWrapper: { alignItems: 'center', marginBottom: 8 },
   subtitle: { fontSize: 15, color: colors.textSecondary, textAlign: 'center', marginTop: 4, marginBottom: 32 },
   field: { marginBottom: 16 },
   label: { fontSize: 13, fontWeight: '600', color: colors.textSecondary, marginBottom: 6 },
