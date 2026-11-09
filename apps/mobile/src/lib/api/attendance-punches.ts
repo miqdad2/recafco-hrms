@@ -29,8 +29,11 @@ export interface AttendanceRawPunch {
   employeeId: string;
   punchType: PunchType;
   sourceType: AttendanceSourceType;
+  /** Official punch instant. For mobile punches since TIME-01 this is the server receipt time. */
   punchTimeSource: string;
   punchTimeServer: string;
+  /** Diagnostic phone clock reading (TIME-01); null for older punches and non-mobile sources. */
+  clientReportedTime?: string | null;
   latitude: number | null;
   longitude: number | null;
   gpsAccuracy: number | null;
@@ -50,9 +53,16 @@ export interface ListMyAttendancePunchesParams {
   to?: string | undefined;
 }
 
+/**
+ * TIME-01 contract. The server stamps the official punch time on receipt; nothing sent here can
+ * set or move it. `clientReportedTime` is the phone clock, kept for diagnostics only.
+ * `clientRequestId` identifies one intentional tap: it is reused verbatim when retrying the same
+ * attempt, so the server returns the original result instead of recording a second punch.
+ */
 export interface CreateMobilePunchInput {
   punchType: 'IN' | 'OUT';
-  punchTimeSource: string;
+  clientRequestId: string;
+  clientReportedTime?: string | undefined;
   latitude?: number | undefined;
   longitude?: number | undefined;
   gpsAccuracy?: number | undefined;

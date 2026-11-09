@@ -618,10 +618,16 @@ export class AttendanceValidationService {
         employeeId: punch.employeeId,
         punchType: punch.punchType,
         sourceType: punch.sourceType,
-        createdAt: { lt: punch.createdAt },
-        OR: orConditions,
+        AND: [
+          { OR: orConditions },
+          // "Earlier" is a strict total order: createdAt (millisecond precision), then id as a
+          // tie-breaker. Without the tie-break, two simultaneous rows sharing a createdAt
+          // millisecond (TIME-01 concurrency test) could each fail to see the other and both
+          // be ACCEPTED.
+          { OR: [{ createdAt: { lt: punch.createdAt } }, { createdAt: punch.createdAt, id: { lt: punch.id } }] },
+        ],
       },
-      orderBy: { createdAt: 'asc' },
+      orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
       take: 1,
     });
 
@@ -629,7 +635,20 @@ export class AttendanceValidationService {
   }
 
   private hasFraudSignal(fraudFlagsJson: Prisma.JsonValue): boolean {
-    const suspiciousKeys = ['mocklocation', 'fakegps', 'isrooted', 'isjailbroken', 'rooted', 'jailbroken'];
+    // TIME-01 fix: the shipped mobile app reports `mockLocationDetected` (Unit 17), which the
+    // original list never matched — a client-reported mock location was being auto-ACCEPTED.
+    // `mocked`/`ismocked` cover expo-location's own `mocked` property naming.
+    const suspiciousKeys = [
+      'mocklocation',
+      'mocklocationdetected',
+      'mocked',
+      'ismocked',
+      'fakegps',
+      'isrooted',
+      'isjailbroken',
+      'rooted',
+      'jailbroken',
+    ];
     for (const entry of this.toFlagArray(fraudFlagsJson)) {
       if (entry.flag !== 'CLIENT_REPORTED_SIGNALS') {
         continue;

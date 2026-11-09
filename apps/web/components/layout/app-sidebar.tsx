@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import { usePathname } from 'next/navigation';
@@ -82,9 +83,19 @@ export function AppSidebar() {
       </div>
       <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
         {isAdmin ? (
-          visibleAdminItems.map((item) => {
+          visibleAdminItems.map((item, index) => {
             const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} active={active} />;
+            const link = <NavLink key={item.href} href={item.href} label={item.label} icon={item.icon} active={active} />;
+            const startsGroup = Boolean(item.group) && visibleAdminItems[index - 1]?.group !== item.group;
+            if (!startsGroup) return link;
+            return (
+              <React.Fragment key={`group-${item.group}`}>
+                <div className="mt-3 px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-wide text-subtle-foreground">
+                  {item.group}
+                </div>
+                {link}
+              </React.Fragment>
+            );
           })
         ) : (
           <EmployeeNav entries={EMPLOYEE_NAV_ITEMS} pathname={pathname} />

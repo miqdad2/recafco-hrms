@@ -66,34 +66,53 @@ export class AttendanceSummaryCalculatorService {
     // would silently miss that case and let a brand-new summary be calculated for a locked date.
     await this.payrollLockGuardService.assertWorkDateNotLocked(workDate);
 
-    const existing = await this.prisma.attendanceDailySummary.findUnique({
-      where: { employeeId_workDate: { employeeId, workDate } },
-    });
+    // TIME-01 concurrency fix. Previously `existing` and the eligible punches were read OUTSIDE
+    // the write transaction, so two recalculations for the same employee/day (e.g. an IN and an
+    // OUT processed simultaneously) could each read a stale punch set and the last writer would
+    // overwrite the other's result (lost OUT → wrong MISSING_PUNCH). Now everything — lock check,
+    // reads, official-flag update, upsert — happens in ONE transaction that first takes a
+    // per-employee/day advisory lock, so recalculations of the same day are strictly serialised
+    // and each one sees every punch committed before it.
+    const lockKey = `attendance-day:${employeeId}:${workDate.toISOString().slice(0, 10)}`;
+    const { summary, existing } = await this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`;
 
-    if (existing?.lockedAt) {
-      throw new ConflictException('Cannot recalculate a locked attendance summary');
-    }
+        // Re-checked inside the transaction under a row share lock on the covering period(s):
+        // a concurrent lockPeriod() either committed first (we see LOCKED and abort) or waits
+        // for this transaction — a period can no longer be locked between check and write.
+        await this.payrollLockGuardService.assertWorkDateNotLockedInTransaction(tx, workDate);
 
-    const eligiblePunches = await this.getEligiblePunches(employeeId, workDate);
-    const { officialIn, officialOut } = this.chooseOfficialInOut(eligiblePunches);
-    const shift = await this.findActiveShift(employeeId, workDate);
-    const minutes = this.calculateMinutes(officialIn, officialOut, shift, workDate);
-    const status = this.determineStatus(officialIn, officialOut, minutes.lateMinutes);
+        const existingSummary = await tx.attendanceDailySummary.findUnique({
+          where: { employeeId_workDate: { employeeId, workDate } },
+        });
+        if (existingSummary?.lockedAt) {
+          throw new ConflictException('Cannot recalculate a locked attendance summary');
+        }
 
-    const officialInPunchId = officialIn?.id ?? null;
-    const officialOutPunchId = officialOut?.id ?? null;
+        const eligiblePunches = await this.getEligiblePunches(tx, employeeId, workDate);
+        const { officialIn, officialOut } = this.chooseOfficialInOut(eligiblePunches);
+        const shift = await this.findActiveShift(tx, employeeId, workDate);
+        const minutes = this.calculateMinutes(officialIn, officialOut, shift, workDate);
+        const status = this.determineStatus(officialIn, officialOut, minutes.lateMinutes);
 
-    const summary = await this.prisma.$transaction(async (tx) => {
-      await this.updateOfficialFlags(tx, employeeId, workDate, officialInPunchId, officialOutPunchId);
-      return this.upsertDailySummary(tx, employeeId, workDate, existing, {
-        officialInPunchId,
-        officialOutPunchId,
-        officialInTime: officialIn?.punchTimeSource ?? null,
-        officialOutTime: officialOut?.punchTimeSource ?? null,
-        ...minutes,
-        status,
-      });
-    });
+        const officialInPunchId = officialIn?.id ?? null;
+        const officialOutPunchId = officialOut?.id ?? null;
+
+        await this.updateOfficialFlags(tx, employeeId, workDate, officialInPunchId, officialOutPunchId);
+        const upserted = await this.upsertDailySummary(tx, employeeId, workDate, existingSummary, {
+          officialInPunchId,
+          officialOutPunchId,
+          officialInTime: officialIn?.punchTimeSource ?? null,
+          officialOutTime: officialOut?.punchTimeSource ?? null,
+          ...minutes,
+          status,
+        });
+        return { summary: upserted, existing: existingSummary };
+      },
+      // Waiting on another recalculation of the same day is expected under burst load.
+      { maxWait: 10_000, timeout: 20_000 },
+    );
 
     await this.auditService.record({
       actorUserId,
@@ -168,9 +187,13 @@ export class AttendanceSummaryCalculatorService {
     return result;
   }
 
-  private async getEligiblePunches(employeeId: string, workDate: Date): Promise<AttendanceRawPunch[]> {
+  private async getEligiblePunches(
+    tx: Prisma.TransactionClient,
+    employeeId: string,
+    workDate: Date,
+  ): Promise<AttendanceRawPunch[]> {
     const { start, end } = kuwaitWorkDateRange(workDate);
-    return this.prisma.attendanceRawPunch.findMany({
+    return tx.attendanceRawPunch.findMany({
       where: {
         employeeId,
         punchTimeSource: { gte: start, lt: end },
@@ -192,9 +215,9 @@ export class AttendanceSummaryCalculatorService {
     };
   }
 
-  private async findActiveShift(employeeId: string, workDate: Date): Promise<Shift | null> {
+  private async findActiveShift(tx: Prisma.TransactionClient, employeeId: string, workDate: Date): Promise<Shift | null> {
     const { start, end } = kuwaitWorkDateRange(workDate);
-    const assignment = await this.prisma.shiftAssignment.findFirst({
+    const assignment = await tx.shiftAssignment.findFirst({
       where: {
         employeeId,
         effectiveFrom: { lt: end },

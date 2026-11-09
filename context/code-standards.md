@@ -148,6 +148,14 @@ Minimum expected tests for critical modules:
 
 A feature is not complete if it cannot be verified.
 
+Test database safety (INCIDENT-02, mandatory):
+
+- Integration tests use only the client from `apps/api/test/support/test-prisma.ts` (explicit `datasourceUrl` from `apps/api/.env.test`). Never import a shared/global Prisma client into tests or Jest global setup.
+- `createTestApp()` always overrides the `PRISMA_CLIENT` token. Do not construct the Nest app for tests any other way.
+- Any cleanup or other destructive statement goes through `runDestructiveTestOperation` (live identity + marker verification on the same transaction connection, plus the explicit `RECAFCO_TEST_DB_RESET` flag). Never call TRUNCATE/DELETE directly from test code.
+- `pnpm --filter @recafco/api test:safety` must pass before any destructive suite is run.
+- Run `infrastructure/backups/backup-database.mjs` against `recafco_hrms_dev` before migrations, bootstrap or test runs.
+
 ## Reliability and Performance
 
 - Punch endpoint must be optimized for peak times.

@@ -295,6 +295,9 @@ model Employee {
   corrections      AttendanceCorrection[]
   user             User?
 
+  calendarAssignments  WorkCalendarAssignment[]
+  calendarDayOverrides WorkCalendarDayOverride[]
+
   @@index([departmentId])
   @@index([designationId])
   @@index([workLocationId])
@@ -319,7 +322,8 @@ model Shift {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
-  shiftAssignments ShiftAssignment[]
+  shiftAssignments    ShiftAssignment[]
+  calendarAssignments WorkCalendarAssignment[]
 
   @@map("shifts")
 }
@@ -352,8 +356,20 @@ model AttendanceRawPunch {
   sourceType                 AttendanceSourceType
   sourceId                   String?
   sourceDeviceId             String?
+  /// Official instant used for validation, duplicate detection, workDate and calculation.
+  /// MOBILE rows created from TIME-01 onward: equals `punchTimeServer` (server receipt time).
+  /// Device imports: the device's event time. Manual/correction: the requested time.
+  /// MOBILE rows created before TIME-01 hold the phone-reported time (historical, not rewritten).
   punchTimeSource            DateTime
+  /// Server receipt instant (always server-generated).
   punchTimeServer            DateTime
+  /// TIME-01: diagnostic only — the phone clock as reported by the client. Never used for
+  /// attendance. Null for non-mobile sources and for pre-TIME-01 mobile rows.
+  clientReportedTime         DateTime?
+  /// TIME-01: client-generated UUID per intentional punch action (reused on retries).
+  clientRequestId            String?
+  /// TIME-01: SHA-256 of the validation-relevant request fields, to detect conflicting reuse of a clientRequestId.
+  clientRequestFingerprint   String?
   latitude                   Float?
   longitude                  Float?
   gpsAccuracy                Float?
@@ -390,6 +406,8 @@ model AttendanceRawPunch {
   targetedByCorrections AttendanceCorrection[] @relation("CorrectionTargetPunch")
 
   @@unique([attendanceDeviceId, sourceId])
+  /// TIME-01 idempotency: one row per employee + source + client request id (NULL ids are not constrained).
+  @@unique([employeeId, sourceType, clientRequestId])
   @@index([employeeId, punchTimeServer])
   @@index([workLocationId])
   @@index([sourceType])
@@ -628,4 +646,133 @@ model RefreshToken {
   @@index([userId])
   @@index([expiresAt])
   @@map("refresh_tokens")
+}
+
+// ---------------------------------------------------------------------------
+// Working calendar (HR-POLICY-01). Additive. Only ACTIVE records are ever used by
+// attendance, monthly reporting or payroll-closing readiness; DRAFT/INACTIVE are ignored.
+// Dates are Kuwait calendar dates stored as UTC midnight (same convention as workDate).
+// ---------------------------------------------------------------------------
+
+/// DRAFT: editable, never used. ACTIVE: approved (approvalReference + actor) and in effect.
+/// INACTIVE: deactivated with a reason (holidays/overrides only); history is kept.
+enum CalendarPolicyStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum CalendarAssignmentScope {
+  EMPLOYEE
+  SHIFT
+}
+
+enum CalendarDayType {
+  WORKING_DAY
+  REST_DAY
+}
+
+/// A weekly working pattern. ACTIVE calendars are immutable: changes are a new calendar plus
+/// re-assignment with effective dates, so history never changes silently.
+model WorkCalendar {
+  id                String               @id @default(cuid())
+  code              String               @unique
+  name              String
+  description       String?
+  /// Kuwait weekdays that are working days: 0 = Sunday … 6 = Saturday.
+  workingWeekdays   Int[]
+  status            CalendarPolicyStatus @default(DRAFT)
+  approvalReference String?
+  activatedByUserId String?
+  activatedAt       DateTime?
+  createdByUserId   String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+
+  assignments  WorkCalendarAssignment[]
+  dayOverrides WorkCalendarDayOverride[]
+
+  @@index([status])
+  @@map("work_calendars")
+}
+
+/// Which calendar applies to an employee (EMPLOYEE scope) or to everyone on a shift (SHIFT
+/// scope) for an inclusive date range. Never deleted: ending sets effectiveTo.
+model WorkCalendarAssignment {
+  id              String                  @id @default(cuid())
+  calendarId      String
+  scope           CalendarAssignmentScope
+  employeeId      String?
+  shiftId         String?
+  effectiveFrom   DateTime
+  effectiveTo     DateTime?
+  reason          String?
+  createdByUserId String?
+  endedByUserId   String?
+  endedAt         DateTime?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  calendar WorkCalendar @relation(fields: [calendarId], references: [id], onDelete: Restrict)
+  employee Employee?    @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  shift    Shift?       @relation(fields: [shiftId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, effectiveFrom])
+  @@index([shiftId, effectiveFrom])
+  @@index([calendarId])
+  @@map("work_calendar_assignments")
+}
+
+/// A special working day or rest day on ONE date, for a calendar (everyone on it) or for one
+/// employee. Requires activation (approval) like holidays.
+model WorkCalendarDayOverride {
+  id                  String               @id @default(cuid())
+  calendarId          String?
+  employeeId          String?
+  date                DateTime
+  dayType             CalendarDayType
+  reason              String
+  status              CalendarPolicyStatus @default(DRAFT)
+  approvalReference   String?
+  activatedByUserId   String?
+  activatedAt         DateTime?
+  deactivatedByUserId String?
+  deactivatedAt       DateTime?
+  deactivationReason  String?
+  createdByUserId     String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  calendar WorkCalendar? @relation(fields: [calendarId], references: [id], onDelete: Restrict)
+  employee Employee?     @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@index([calendarId, date])
+  @@index([employeeId, date])
+  @@map("work_calendar_day_overrides")
+}
+
+/// Company-wide public holiday (inclusive date range). Location-specific holidays are not
+/// supported yet: employee work-location history is not tracked.
+model PublicHoliday {
+  id                  String               @id @default(cuid())
+  name                String
+  startDate           DateTime
+  endDate             DateTime
+  status              CalendarPolicyStatus @default(DRAFT)
+  /// Where the date came from (e.g. "Civil Service Bureau circular 12/2031"). Required to activate.
+  source              String?
+  notes               String?
+  approvalReference   String?
+  activatedByUserId   String?
+  activatedAt         DateTime?
+  deactivatedByUserId String?
+  deactivatedAt       DateTime?
+  deactivationReason  String?
+  createdByUserId     String?
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  @@index([startDate, endDate])
+  @@index([status])
+  @@map("public_holidays")
 }

@@ -4,7 +4,9 @@ Update this file after every meaningful implementation change.
 
 ## Current Phase
 
-- Phase 1 — Foundation: Unit 1 (database package), Unit 1.1 (local migration verification), Unit 2 (NestJS API foundation), Unit 3 (Auth/RBAC foundation), Unit 4 (Employee/Department/Designation/Work Location API foundation), Unit 5 (Attendance Device Registry API foundation), Unit 6 (Mobile Device Binding API foundation), Unit 7 (Attendance Raw Punch API foundation), Unit 8 (Attendance Basic Validation Engine), Unit 9 (Daily Attendance Summary Calculator), Unit 10 (Attendance Correction Workflow), Unit 11 (Next.js Web Frontend Foundation), Unit 12 (Web Admin Master Data Screens), Unit 13 (Web Admin Device and Mobile Device Screens), Unit 14 (Web Admin Attendance Operations Screens), Unit 15 (Mobile App Foundation), Unit 16 (Mobile Device Registration Screen), Unit 17 (Mobile Attendance Punch Screen), Unit 18 (Mobile Attendance History and Status Screen), Unit 18.1 (Mobile Navigation and Logout UX Fix), Unit 19 (Mobile Attendance Correction Request Screen), Unit 19.2 (Employee User Account Provisioning + Password Change Reminder), Unit 20 (Payroll Lock / Monthly Closing Backend), Unit 19.3 (Employee Web/Mobile Experience Alignment), Unit 19.4 (Mobile Employee App UX Benchmark Alignment), Unit 19.5 (Web Employee Self-Service Benchmark Alignment), Unit 20.1 (Automated Attendance Validation and Daily Auto-Calculation), Unit 19.6 (Mobile Splash Screen and App Branding Polish), Unit 19.6.1 (Mobile Splash Screen Visual Refinement), Unit 19.6.2 (Mobile App Icon Visual Refinement), and Unit 19.6.3 (Mobile Splash and Login Branding Refinement) complete; Monthly Attendance Payroll Basis Calculator (Unit 20.2) is next, then Web Payroll Lock / Monthly Closing Screen (Unit 21).
+- Phase 1 — Foundation: Unit 1 (database package), Unit 1.1 (local migration verification), Unit 2 (NestJS API foundation), Unit 3 (Auth/RBAC foundation), Unit 4 (Employee/Department/Designation/Work Location API foundation), Unit 5 (Attendance Device Registry API foundation), Unit 6 (Mobile Device Binding API foundation), Unit 7 (Attendance Raw Punch API foundation), Unit 8 (Attendance Basic Validation Engine), Unit 9 (Daily Attendance Summary Calculator), Unit 10 (Attendance Correction Workflow), Unit 11 (Next.js Web Frontend Foundation), Unit 12 (Web Admin Master Data Screens), Unit 13 (Web Admin Device and Mobile Device Screens), Unit 14 (Web Admin Attendance Operations Screens), Unit 15 (Mobile App Foundation), Unit 16 (Mobile Device Registration Screen), Unit 17 (Mobile Attendance Punch Screen), Unit 18 (Mobile Attendance History and Status Screen), Unit 18.1 (Mobile Navigation and Logout UX Fix), Unit 19 (Mobile Attendance Correction Request Screen), Unit 19.2 (Employee User Account Provisioning + Password Change Reminder), Unit 20 (Payroll Lock / Monthly Closing Backend), Unit 19.3 (Employee Web/Mobile Experience Alignment), Unit 19.4 (Mobile Employee App UX Benchmark Alignment), Unit 19.5 (Web Employee Self-Service Benchmark Alignment), Unit 20.1 (Automated Attendance Validation and Daily Auto-Calculation), Unit 19.6 (Mobile Splash Screen and App Branding Polish), Unit 19.6.1 (Mobile Splash Screen Visual Refinement), Unit 19.6.2 (Mobile App Icon Visual Refinement), and Unit 19.6.3 (Mobile Splash and Login Branding Refinement), Unit 20.2 (Monthly Attendance Payroll Basis Calculator), and Unit 21 (HR Monthly Attendance Review and Monthly Closing Web UI), Unit 21.1 (Payroll Closing Backend Safety and Readiness Validation), and HR-POLICY-01 (Working Calendar foundation, not yet activated) complete; LEAVE-01 (approved leave source) is next.
+- Rust engine track (parallel, isolated — no live traffic): RUST-01 (High-Performance Architecture Audit and Rust Service Foundation) complete; **RUST-02 — Attendance Validation Engine Parity** is the next Rust unit. The NestJS track's next unit (Unit 20.2) is unchanged by RUST-01.
+- **INCIDENT (2026-11-08): a TIME-01 test run truncated `recafco_hrms_dev`; historical dev data is unrecoverable.** INCIDENT-01 (investigation) and INCIDENT-02 (permanent test isolation, backups) complete. RBAC and the `superadmin` login were rebuilt; master data must be re-entered by the owner. **TIME-01 is complete** (resumed under the INCIDENT-02 safeguards). **RUST-02 is complete (67/67 NestJS↔Rust validation parity). RUST-03 is complete (48/48 daily-summary parity). RUST-04 is complete as design + synthetic verification only: RECAFCO IT has provided no biometric source access, so nothing was connected. The next biometric unit (BIO-01) is blocked on IT information.** See `docs/incidents/INCIDENT-01-dev-database-truncation.md`.
 
 ## Current Goal
 
@@ -412,6 +414,368 @@ Define a spec-driven foundation for building a fast, reliable, payroll-safe inte
   - Verified end-to-end: `pnpm --filter @recafco/mobile typecheck`/`lint` and root `pnpm typecheck`/`lint`/`build` all pass cleanly. No database interaction, no test data to clean up (pure asset/component unit).
   - **Limitation**: as with Units 19.6.1/19.6.2, this is evidence-based verification (transparency confirmed at the pixel level, badge geometry confirmed via a matching rendered mock-up, bundle content confirmed via grep) rather than an actual on-device render — a real phone/emulator pass (ideally after an uninstall/reinstall to clear any cached splash/icon, per the task's own Task 8 instruction) remains the standing recommendation before calling the visual polish fully closed.
 
+- UNIT MOBILE UI-01 — Splash Screen and Welcome Experience Redesign: **COMPLETE in code (2026-11-09). Native Android splash NOT yet seen on a real device/APK** (no JDK 17/NDK for a local Gradle build; EAS build not triggered by the agent).
+  - **Root cause of the cropped logo (reproduced, not guessed)**: `expo-splash-screen` (SDK 54, `@expo/prebuild-config` 54.0.8) always renders the splash `image` as Android 12's `windowSplashScreenAnimatedIcon` — on every Android version via androidx core-splashscreen. Android fits that icon into a 288dp slot and **masks it to a 192dp circle** (2/3 of the slot). Unit 19.6.3 pointed it at `recafco-logo-transparent.png`, a tightly cropped wide wordmark (3125×2451, zero padding), so the circular mask cut the Arabic line, the outer letters and "Since 1976" — leaving roughly "ECAFC" visible. A `sharp` simulation of that mask on the old asset reproduces the reported screenshot exactly. Unit 19.6.1's `splash-logo.png` had the same geometry problem.
+  - **Native splash fix**: new `assets/splash-icon.png` (1152×1152 = 288dp @ xxxhdpi, transparent canvas): white disc 737px (0.64 of canvas, fully inside the 0.667 mask), with the trimmed original logo 489×380 centred so its *diagonal* is 84% of the disc diameter — nothing can reach the mask. `app.json` splash plugin: `image` → `splash-icon.png`, `imageWidth` 420 → 288, `backgroundColor` → `#191919`, plus identical `dark` values so night-mode resources match. Launcher `icon`/`adaptiveIcon` untouched (adaptive foreground already within the 66/108 safe zone). No welcome text or large circle is forced into the system splash. `assets/splash-screen.png` regenerated as a documentation-only preview of the masked Android 12+ result (not wired into config). Assets are derived from the original root `recafco-logo.png` (trim by alpha → flatten on white → resize); nothing redrawn. Unused legacy `splash-logo.png` left in place.
+  - **React Native welcome screen**: new `src/components/launch-welcome-screen.tsx` replaces `branded-loading-screen.tsx` (deleted). Charcoal `#191919` background with two faint curved shapes, white logo disc (216–280dp responsive, halo + shadow), "Welcome to RECAFCO", "HRMS Employee Self Service" with thin red side lines (hidden below 340dp width). New `brand` tokens in `src/lib/theme.ts` (red `#EA262A` sampled from the logo). Animation uses RN `Animated` only: disc fade + 0.92→1 scale, heading fade + 12dp rise (380ms, 120ms stagger), 180ms fade-out. Reduced motion → no animation. Light status bar while shown.
+  - **Startup behaviour**: `(app)/_layout.tsx` shows the welcome while `isLoading`, and exits as soon as auth restore is done *and* the ~500ms entrance has played — no artificial wait beyond that. Plays once per app process (module flag), not after logout→login. Protected tabs still never render before auth resolves. A small red spinner appears only if restore exceeds 1.2s. `auth-context.tsx` hardening: a SecureStore read error is now treated as signed out (previously an unhandled rejection left `isLoading` true forever), and `/auth/me` during restore has a 15s timeout that falls through to `/login` **without** clearing stored tokens (other failures still clear the session, as before). No API, DB, punch, TIME-01, geofence, device-registration or navigation changes.
+  - **Verified**: mobile `typecheck` and `lint` clean; `expo config --type public` resolves the new splash values; `expo export` for Android (3.18 MB HBC) and iOS (3.19 MB HBC) succeeds with `welcome-logo.png` bundled; static web export screenshotted with Playwright (paused fake clock) at 320×568, 360×800 (light + dark system scheme), 412×915, 393×852, 375×667 — logo always inside the disc, 40–52dp gap between disc and heading, no horizontal overflow, no page errors, and each run then left the welcome screen and landed on `/login`. `expo-doctor` reports three pre-existing issues unrelated to this unit (Metro `watchFolders` override, missing `expo-font` peer, `expo`/`expo-constants` patch versions).
+  - **Review pass (2026-11-09, second session)**: (1) fixed `auth-context.tsx` restore so a fast network failure (`ApiError` status 0, e.g. offline at launch) keeps the stored tokens like the 15s timeout already did; before this, only the timeout kept them and an offline cold start logged the employee out. Expired or invalid tokens (any HTTP error response) are still cleared. (2) `app/_layout.tsx`: `SplashScreen.setOptions({ duration: 250, fade: true })` for a native→welcome cross-fade (fade is iOS-only; Android uses the system exit). (3) Throwaway `expo prebuild --platform android --no-install` (output deleted; package.json/app.json restored byte-identical) confirmed the generated resources: `splashscreen_logo.png` 288dp at every density (288/432/576/864/1152 px), `splashscreen_background` #191919 in `values` and `values-night`, `windowSplashScreenBehavior=icon_preferred`, adaptive launcher icon unchanged (white background + existing foreground). Re-ran typecheck, lint and the Android + iOS `expo export` ✅. `expo-doctor` reports 3 checks that predate this unit (Metro config, missing direct `expo-font` peer, expo/expo-constants patch versions); they were left as they are.
+  - **Residual risk**: `AppTheme` has no `windowBackground`, so if Android ever shows a frame between the splash exit and the first React paint, it would be the theme default (light/dark), not charcoal. Fixing that needs `expo-system-ui` + top-level `backgroundColor` (a new native dependency), which is deferred.
+  - **Not verified**: real Android/iOS native splash render, cold start, force-close, reboot, logged-in startup, launcher icon on a device. Requires an EAS (or local JDK 17 + NDK) build; reinstall the app (not update-over) to clear cached splash resources on the first check.
+
+- UNIT RUST-01 — High-Performance Architecture Audit and Rust Service Foundation completed (2026-11-08):
+  - **Scope held**: no existing TypeScript, Prisma schema, migration, API route, auth flow, mobile or web file was modified. `git status` after the unit shows only new files under `apps/attendance-engine/`, the new `docs/architecture/rust-attendance-engine.md`, and edits to `context/architecture.md` + this file.
+  - **Audit** (full detail: `docs/architecture/rust-attendance-engine.md` §2): mapped every attendance code path to exact class/method (`AttendancePunchesService.createMobile/createDeviceImport/createManual`, `AttendanceValidationService.processNewPunch/computeValidationResult/validateMobilePunch/...`, `AttendanceSummaryCalculatorService.calculateForEmployeeDate/...`, `PayrollLockGuardService`, `AttendanceCorrectionsService.approveCorrection`). **Zero automated tests exist in the TypeScript codebase** (no `*.spec.ts`, no Jest/Vitest config; `apps/api` lint is an `echo` placeholder). Ten payroll-safety findings F1–F10 recorded, most important **F1: the official mobile punch time is the phone's clock** (`apps/mobile/app/(app)/attendance.tsx` sends `punchTimeSource: new Date().toISOString()`; the calculator, workDate, and duplicate window all use `punchTimeSource`, never `punchTimeServer`) — contradicts `code-standards.md`. Also: grace/break minutes stored but not applied (F2), overnight shifts grouped by calendar day (F3), no per-employee/day serialization of recalculation (F4), payroll-lock check not inside the write transaction (F5), no mobile idempotency key (F6), audit writes outside data transactions (F7), biometric identity = global `employeeCode` (F8), no-punch days never materialised (F9), fixed UTC+3 ignores `WorkLocation.timezone` (F10). **None fixed** — out of scope; each needs its own unit and, for F1/F2/F3/F9, HR confirmation.
+  - **Requirements matrix**: 18 unified attendance requirements classified Implemented / Partial / Missing / Awaiting HR (§3). Pinnacle functional analysis document **not present in the repository** — no Pinnacle rules assumed.
+  - **Rust toolchain installed** (none existed): official `rustup-init.exe` (GNU host build), SHA-256 verified against `static.rust-lang.org`, installed with `--no-modify-path --profile minimal` → rustc/cargo **1.99.1**, rustup 1.29.3, host `x86_64-pc-windows-gnu`, plus `rustfmt`, `clippy`, `llvm-tools`. Global PATH, registry and other toolchains untouched. No Visual Studio Build Tools on this machine, and the bundled GNU `dlltool` needs an absent assembler, so `apps/attendance-engine/scripts/cargo.sh`/`cargo.ps1` point rustc at LLVM's dlltool (copy of rustup's `llvm-ar.exe` inside git-ignored `target/tools/`) via `CARGO_TARGET_X86_64_PC_WINDOWS_GNU_RUSTFLAGS`; plain pass-through on Linux/macOS/MSVC.
+  - **Service `apps/attendance-engine`**: axum 0.8.9, tokio 1.54.1, sqlx 0.9.0 (postgres, runtime-tokio, no TLS, no macros), tower-http 0.7.1 (trace/timeout/catch-panic), serde, tracing + tracing-subscriber (JSON default), thiserror, dotenvy. `GET /health` (liveness, no dependencies), `GET /ready` (live `SHOW default_transaction_read_only` round-trip bounded by a timeout; 200 only if reachable **and** read-only, else 503 `not_configured`/`unreachable`/`timeout`/`not_read_only`; no driver errors or credentials in bodies), JSON 404 fallback, panic → JSON 500 without details, per-request timeout, graceful shutdown (Ctrl+C / SIGTERM) with in-flight drain and a hard grace deadline, pool closed on exit. Exit codes 2 (config) / 1 (runtime, e.g. port in use) / 0. Config via `ATTENDANCE_ENGINE_*` variables only, loaded from `apps/attendance-engine/.env` by exact path (root `.env` with NestJS secrets is never read); production refuses to start without a database URL; DB URL wrapped in a redacting `Secret`. Lazy pool (starts fine with PostgreSQL down), max 5 / min 0 / acquire 3 s / `statement_timeout` 5 s, `application_name=recafco-attendance-engine`, and **every session forced to `default_transaction_read_only=on`**. Dev port **4100** on `127.0.0.1`. Not a pnpm workspace package (no `package.json`), so turbo/pnpm pipelines are unaffected.
+  - **Real bug caught by the new tests**: sqlx 0.9's `PgConnectOptions::from_str` accepts a `mysql://` URL; an explicit `postgres://`/`postgresql://` scheme check was added to config validation.
+  - **Verification (all actually executed)**: `cargo fmt --all -- --check` ✅; `cargo clippy --all-targets -- -D warnings` ✅ (zero warnings); `cargo test` ✅ **26 passed, 0 failed, 2 ignored** (12 config unit tests; 6 router tests incl. readiness refused-connection and silent-server timeout; 8 lifecycle tests incl. graceful shutdown, in-flight drain, forced exit after grace, binary exit code 2 for missing prod DB URL / invalid port / malformed URL without leaking it, exit code 1 on port conflict, binary start + `/health`); the 2 ignored live-DB tests run explicitly against local `recafco_hrms_dev` ✅ **2 passed** (`/ready` 200 with `read_only: true`; `CREATE TABLE` rejected with SQLSTATE 25006 inside an always-rolled-back transaction); `cargo build --release` ✅ (4.0 MB binary). Manual smoke test of the release binary on 4100 against the dev DB: `/health` 200, `/ready` 200 `{"database":{"status":"ok","read_only":true,"pool":{"size":1,"idle":0,"max":5}}}`, unknown path JSON 404, JSON structured startup log, ~11 MB working set; then only the engine process was stopped. `pnpm typecheck --force` ✅ 5/5, `pnpm lint --force` ✅ 5/5, `pnpm build --force` ✅ 4/4 (pre-existing turbo warning about `@recafco/shared#build` outputs, unrelated).
+  - **Database**: zero writes, zero migrations, zero role/constraint changes. PostgreSQL 18.4 confirmed. No test data created, nothing to clean up.
+  - **Not implemented (by design)**: any attendance logic in Rust, any `/v1` endpoint, inter-service auth, job table, Docker/Linux build, read-only DB role creation (needs IT approval), fixes for F1–F10.
+
+- UNIT TIME-01 — Secure Mobile Punch Timestamp and Replay Protection: **COMPLETE (2026-11-08)**, resumed after INCIDENT-02 under its safeguards.
+  - **Preflight:**
+    - The owner changed the temporary `superadmin` password (`mustChangePassword=false`). The leftover `apps/api/.env.bootstrap.local` was confirmed invalid (argon2 mismatch) and then removed.
+    - All services were healthy, and no process was stopped.
+    - Verified dev backup `recafco_hrms_dev-20261108T110147Z.dump` (SHA-256 `7ebd4757…f686`).
+    - Safety suite 18/18, with dev row counts identical before and after.
+  - **Phase A findings (characterisation suite on unmodified code):**
+    - **F1 confirmed empirically**: a phone clock 30 min back gave an official time 30 min back.
+    - **A second, previously unknown bug**: the shipped app sends `fraudSignals.mockLocationDetected`, which `hasFraudSignal` never matched, so reported mock locations were auto-ACCEPTED.
+  - **Timestamp authority:**
+    - `ClockService` (injectable) supplies `receivedAt` as the first step of `createMobile`. It is written to `punchTimeSource` (the field every rule reads: validation, duplicate window, Kuwait workDate, summaries) and to `punchTimeServer`.
+    - The phone clock is diagnostic only: `clientReportedTime` (new DTO field, or legacy `punchTimeSource` from old APKs), the raw string in `rawPayload.submittedClientTime`, `timeAuthority: SERVER_RECEIPT`, and an informational `CLIENT_CLOCK_SKEW` flag (|skew| > 300 s, source `INTAKE`; no status or score change).
+    - Device imports are unchanged: they keep the device event time.
+    - Historical rows are not rewritten. Pre-TIME-01 mobile rows keep the phone time, and `clientReportedTime IS NULL` identifies them.
+  - **Mock location:** key list extended (`mockLocationDetected`, `mocked`, `isMocked`). A mock signal on IN or OUT → `REJECTED_FAKE_GPS`, never official. All other rules unchanged; IN and OUT are validated independently.
+  - **Idempotency:**
+    - `clientRequestId` (UUID) is unique per `(employeeId, sourceType, clientRequestId)` at DB level.
+    - A SHA-256 fingerprint of the validation-relevant fields (it excludes the client time and app version) is stored. A same-id/same-fingerprint request is a replay: it returns the stored punch with the `Idempotent-Replayed: true` header, with no new row and no recalculation. A same id with a different payload → 409 `CLIENT_REQUEST_ID_REUSED`, audited.
+    - Concurrent duplicates: the DB unique index picks the winner; the loser waits up to 5 s for validation, then returns the same row. A row left unvalidated for ≥ 30 s (crash between insert and validation) is resumed by its retry.
+  - **Mobile app:** `src/lib/attendance/punch-attempt.ts` plus `attendance.tsx`.
+    - One UUID per tap. On an unknown outcome (network error or 5xx), the next tap of the same button resends the identical payload: same id, same GPS reading. A definitive 2xx/4xx answer ends the attempt. Attempts live in memory and expire after 10 min.
+    - `punchTimeSource` is no longer sent.
+  - **Old APKs:** still accepted. Their `punchTimeSource` is now diagnostic only (official time = server receipt, test 3b). There's no `clientRequestId`, so they get no replay protection beyond the 2-minute duplicate window; they're flagged `LEGACY_CLIENT_NO_REQUEST_ID`.
+  - **Concurrency:**
+    - `calculateForEmployeeDate` runs entirely in one transaction under `pg_advisory_xact_lock(hashtextextended('attendance-day:<employee>:<date>'))`. That fixes F4 (a lost OUT when IN and OUT recalculate together).
+    - The payroll-lock re-check `FOR SHARE` on the covering period rows happens inside that transaction, and `lockPeriod` takes `FOR UPDATE` on its row first. That fixes F5's TOCTOU, with no lock-order deadlock.
+    - Duplicate detection orders by `(createdAt, id)` (deterministic tie-break).
+  - **Migration:** `20261108100000_time01_mobile_punch_time_authority_idempotency`: 3 nullable columns + 1 unique index. It was reviewed (no destructive statements, and the live dev→schema diff was identical to it), then applied to dev with `prisma migrate deploy`. Dev now matches the schema exactly, and the running dev API health stayed 200.
+  - **Verification (all executed):**
+    - Full API Jest suite **50/50 passed in 3 consecutive runs** (150/150), with dev row counts identical before and after:
+      - legacy/old-APK suite 8;
+      - TIME-01 suite 18, covering required tests 1–13 plus 3b, per-employee scoping, mock location on IN and OUT, and IN/OUT independence;
+      - concurrency/payroll-lock suite 6: simultaneous IN ×8 rounds, OUT ×8, IN+OUT ×8, a 5-request retry burst, lock activation during recalculation (waits, then refuses), lockPeriod waiting for an in-flight recalculation, locked-summary immutability;
+      - safety suite 18.
+    - API build ✅; root typecheck 5/5, lint 5/5, build 4/4 (forced) ✅; mobile typecheck + lint ✅; `expo export` Android and iOS Hermes bundles ✅ (3.18 MB each, containing `clientRequestId`/`clientReportedTime`); Rust engine 26 passed / 2 ignored (unchanged).
+  - **Not done / remaining:**
+    - No on-device test of the retry UX.
+    - A theoretical sub-millisecond window remains for two different-id simultaneous punches whose inserts commit out of `createdAt` order. It wasn't observed in 72 parallel rounds, and even then the official IN/OUT stays single. See the open questions.
+    - F2/F3/F9 are unchanged and need HR rules.
+
+- UNIT 20.2 — Monthly Attendance Payroll Basis Calculator: **COMPLETE (2026-11-08)**.
+  - **Safety:** verified dev backup `recafco_hrms_dev-20261108T123850Z.dump`; safety suite 18/18; tests only in `recafco_hrms_test` as `recafco_test` (guard-verified). Dev row counts were identical before and after the full run. No migration.
+  - **Module** `apps/api/src/payroll-attendance/`: pure calculator, read-only service, controller and DTOs. Endpoints:
+    - `GET /payroll-attendance/monthly?month=YYYY-MM[&employeeId|departmentId|workLocationId][&page&limit≤100]`
+    - `GET /payroll-attendance/monthly/summary` (all matching employees)
+    - `GET /payroll-attendance/monthly/:employeeId?month=` (daily breakdown)
+    - Static routes are declared before the `:employeeId` route.
+  - **Permission:** `payrollAttendance.read` in the RBAC bootstrap constants. It was granted to every role that already holds both inputs (`attendanceSummaries.read` + `payrollLocks.read`): HR_ADMIN, HR_MANAGER, PAYROLL_OFFICER, AUDITOR, MANAGEMENT_VIEWER, plus SUPER_ADMIN via all-permissions. Not granted to EMPLOYEE, SUPERVISOR or DEPARTMENT_MANAGER.
+    - **The dev database will hold the new permission only after the idempotent bootstrap is re-run** (`create:super-admin` with the existing username), and users must log in again.
+  - **Rules** (`shift-payroll-rules.md` §3):
+    - required minutes only on attended days with a valid shift; never assumed;
+    - no weekend assumption; `scheduledWorkingDays = null`;
+    - missing summaries = missing coverage, not absent;
+    - worked/shortage are `null` on blocking days; lateness inside shortage; no overtime netting;
+    - blocking and warning exception codes;
+    - status precedence LOCKED → INCOMPLETE → NEEDS_REVIEW → CALCULATED (none is payroll approval).
+  - **Tests:** `test/payroll-attendance/monthly-attendance.spec.ts` **35/35** (all 30 required cases plus employment boundaries, ABSENT/OUT-before-IN, ambiguous/invalid shifts, a strict read-only proof, and a PostgreSQL-enforced `REPEATABLE READ, READ ONLY` snapshot). Opt-in `monthly-attendance.perf.spec.ts` (`RUN_PERF=1`).
+    - At 2,000 employees × 28 days: list page 0.23–0.40 s, detail 31 ms, aggregate ≈ 3.9–4.7 s.
+    - Replacing Prisma relation loading with one explicit SQL join cut the aggregate from 9.3 s.
+  - **Verification:** API typecheck ✅, build ✅, `test:safety` 18/18 ✅, full API suite **200 passed / 0 failed / 1 skipped (opt-in perf)** ✅, root typecheck 5/5, lint 5/5, build 4/4 ✅. Rust unchanged.
+  - **Limitations:**
+    - Every month with an un-attended assigned day is INCOMPLETE until HR defines rest days, holidays and leave.
+    - No monthly snapshot/approval workflow; no web UI.
+    - Aggregate ≈ 4 s at 2,000 employees.
+
+- UNIT 21 — HR Monthly Attendance Review and Monthly Closing Web UI: **COMPLETE (2026-11-09). Logged-in browser click-through NOT performed** (no credentials available to the agent; see Verification).
+  - **Pages:**
+    - `/payroll-attendance`: month picker (previous/next + month input), employee search, department and work-location filters, Refresh button.
+      - Summary cards come from `/monthly/summary`, never from the current page: employees, the four statuses, required/worked/shortage hours ("Known so far" when partial) and pending items.
+      - Below the cards: the "Issues this month" panel (employees per code), plus locked-period and rest-day notices.
+      - Server-paginated table (20/50/100 rows). Unknown values show as "— Not calculated" with the known-so-far figure.
+    - `/payroll-attendance/[employeeId]?month=`:
+      - employee info, the six totals, and day / pending / lock counts;
+      - month issues (optional technical codes);
+      - the daily table with per-row IN/OUT source labels (mixed sources shown as recorded) and a filter for days needing attention;
+      - left-border highlighting: red for blocking, amber for warnings.
+    - `/payroll-locks`:
+      - status filter and list showing last-locked and last-reopened details;
+      - create-period form with a whole-month quick fill;
+      - details modal (user IDs, plus a pointer to the audit log for the full history).
+      - **Lock dialog:** shows the mandatory warning text and the INCOMPLETE/NEEDS_REVIEW counts per overlapped calendar month (up to 3), plus a red notice that the backend does not block. A required "I have reviewed…" checkbox gates the button.
+      - **Unlock:** a `ReasonDialog` with a warning and a mandatory reason.
+  - **Navigation:** the admin sidebar has a "Payroll & Attendance" group (`NavItem.group`) with Monthly Attendance (`payrollAttendance.read`) and Monthly Closing (`payrollLocks.read`). The employee self-service nav is unchanged.
+  - **API clients:**
+    - `apps/web/lib/api/payroll-attendance.ts` and `payroll-locks.ts`, typed from the backend source. GET functions accept an `AbortSignal`.
+    - Display and error helpers live in `apps/web/lib/payroll-attendance/`; shared components in `apps/web/components/payroll/payroll-ui.tsx`.
+  - **Permissions in the UI:** Create, Lock and Unlock buttons follow `payrollLocks.create`, `payrollLocks.lock` and `payrollLocks.unlock`. Dropdowns and employee search are hidden without `departments.read`, `workLocations.read` or `employees.read`. The backend stays authoritative.
+  - **Performance:**
+    - One summary request per filter set: no polling, no automatic retry, no refetch on focus, `gcTime: 0` (payroll totals are not kept after leaving the page). Refresh is explicit.
+    - React Query aborts the old request when the month or filters change.
+    - At most 100 rows render at once.
+    - Lock-dialog counts are fetched only while the dialog is open.
+  - **Dev RBAC (spec §15):**
+    - Verified backup `recafco_hrms_dev-20261109T045447Z.dump` (SHA-256 `e9ccd7fc…544f`), identity `recafco_hrms_dev`/postgres/5432 confirmed.
+    - The bootstrap code was inspected: it is upsert-only and skips user creation for an existing username. It was run with `superadmin` and a random throwaway password value, which is not used for an existing user.
+    - Before/after diff: +1 permission (`payrollAttendance.read`), +1 mapping each for SUPER_ADMIN, HR_ADMIN, HR_MANAGER, PAYROLL_OFFICER, AUDITOR and MANAGEMENT_VIEWER. Still 1 user; same password-hash fingerprint and `updatedAt`.
+    - Existing sessions must log in again for new JWT permissions.
+  - **Tests:** new `apps/api/test/payroll-locks/payroll-locks-http.spec.ts`, **13/13**; test-only, no backend source change. It covers:
+    - 401 without a token, and 403 for EMPLOYEE, SUPERVISOR and DEPARTMENT_MANAGER;
+    - read access for the 6 intended roles, with AUDITOR and MANAGEMENT_VIEWER unable to mutate;
+    - the full create → lock → unlock → relock lifecycle and its response shapes;
+    - 409 on overlap or a repeated action, and 400 for a missing reason or end before start;
+    - unlock is SUPER_ADMIN-only;
+    - the documented gap that locking succeeds while a month is INCOMPLETE, with exceptions still listed afterwards.
+  - **Verification:**
+    - Web typecheck, lint and build ✅ (21 routes).
+    - Root typecheck 5/5, lint 5/5, build 4/4 ✅.
+    - `test:safety` 18/18 ✅; full API suite **213 passed / 0 failed / 1 skipped** ✅.
+    - Dev unchanged after the tests: identical RBAC snapshot, 0 employees, punches, summaries and locks.
+    - The running dev web server (3010) served all three new routes with HTTP 200; the dev API (4010) answered the new endpoint with 401 when unauthenticated.
+    - **Not done:** a logged-in visual click-through. The agent does not know the `superadmin` password and must not guess it, and dev has 0 employees, so data views would be empty anyway.
+  - **Gaps and limitations:**
+    - ~~**(CRITICAL, backend)** Locking does not check for unresolved attendance; it is a UI warning only.~~ **Closed by Unit 21.1.**
+    - Monthly endpoints have no name/code search (worked around via `/employees?search=` plus the `employeeId` filter) and no status filter, so none is offered.
+    - Only SUPER_ADMIN holds `payrollLocks.unlock`; HR_MANAGER and PAYROLL_OFFICER hold the unused legacy `attendance.payroll.unlock` (open question).
+    - A lock row keeps only the latest lock/reopen; the full history is in the audit log.
+    - ~~Lock-dialog counts cover whole calendar months, not the exact period dates.~~ Replaced by exact-range readiness in Unit 21.1.
+    - The rest-day calendar is still missing, so most months show INCOMPLETE.
+
+- UNIT 21.1 — Payroll Closing Backend Safety and Readiness Validation: **COMPLETE (2026-11-09).**
+  - **Behaviour found before the change:**
+    - Periods are created OPEN; OPEN/LOCKED periods cannot overlap, but REOPENED ones can.
+    - Lock (`payrollLocks.lock`: SUPER_ADMIN, HR_ADMIN, HR_MANAGER, PAYROLL_OFFICER) was transactional, with `FOR UPDATE` on the period row; unlock (`payrollLocks.unlock`: SUPER_ADMIN only) needs a reason, stored in `reopenReason`.
+    - Audit rows are written for create, lock and unlock.
+    - Only summary recalculation coordinated with the lock (`FOR SHARE`).
+    - **Correction approval checked the lock BEFORE its write transaction (check-then-write hole).** Punch intake checks it with a plain read and flags `LOCKED_PERIOD_LATE_PUNCH`.
+    - Lock had no attendance check at all.
+  - **Implemented:**
+    - **Readiness rules and evaluation:** `payroll-closing-readiness.rules.ts` (pure codes and aggregation) and `payroll-closing-readiness.service.ts`. The service reuses the Unit 20.2 per-day evaluation over the EXACT range and adds one filtered SQL fact statement per 250-employee chunk.
+    - **Endpoint:** `GET /payroll-locks/:id/readiness` (`payrollLocks.read`).
+    - **Enforcement in `lockPeriod`:** readiness is evaluated inside the lock transaction after `FOR UPDATE`. Not ready → rollback, a `PAYROLL_PERIOD_LOCK_REFUSED_NOT_READY` audit row, and `409 PAYROLL_PERIOD_NOT_READY` with reason codes and the readiness body. The lock audit includes the readiness summary. **No override, no bypass parameter, no role exemption.**
+    - **Correction approval:** now re-checks the lock inside its transaction (`assertWorkDateNotLockedInTransaction`).
+    - **Reuse of Unit 20.2:** `parseDateRange`; `PayrollAttendanceService` is exported, and its `calculateMonths`, `employeeWhere` and `lockedDates` are now public (behaviour unchanged).
+    - **Readiness rules** (full list in `shift-payroll-rules.md` §4):
+      - Unknown days fail closed as `WORK_CALENDAR_NOT_CONFIGURED`.
+      - `MISSING_PUNCH` is split into `MISSING_IN`/`MISSING_OUT`.
+      - Pending device/import punches become `UNRESOLVED_DEVICE_IMPORT`.
+      - Break/grace not applied is blocking.
+      - `DAILY_SUMMARY_STALE` is checked by content, not timestamps; see the decision below.
+      - Period-level blockers: `NO_EMPLOYEES_IN_PERIOD`, `PERIOD_TOO_LONG` (>92 days).
+    - **Web:** `components/payroll/lock-readiness-dialog.tsx` replaces the checkbox and the month-summary counts.
+      - It shows Ready/Not ready, the counts, issue types with explanations and codes, and up to 50 employee-day samples linked to the employee page.
+      - Lock is disabled unless ready, readiness is re-fetched just before submitting, and a 409 refreshes the state.
+      - `FormModal` gained an optional width class.
+  - **Safety:**
+    - Verified dev backup `recafco_hrms_dev-20261109T052117Z.dump` (SHA-256 `794e16e2…d731`); `test:safety` 18/18 first; tests only in `recafco_hrms_test` as `recafco_test` (guard and marker verified).
+    - Dev attendance, payroll, employee and RBAC counts were identical before and after.
+    - audit_logs +1 and refresh_tokens +1: a browser `LOGIN_SUCCESS` at 2026-11-09 05:30:49Z through the running dev API, not test activity.
+  - **Tests:**
+    - New `test/payroll-locks/payroll-closing-readiness.spec.ts`, **41 tests**: the 30 required cases plus a clock sanity check, rejected-then-ready, re-validated official punch, shift edited after calculation, no employees, too-long period, bounded samples, a read-only proof, and re-evaluation after reopen.
+    - **Race tests are deterministic:** the test holds the real row lock and proves the other side waits.
+    - **Mutation-checked:** removing the approval in-transaction guard fails the approval race test (the correction was APPROVED in a locked period); disabling staleness fails 4 tests.
+    - **Updated for the new rule:** Unit 21's `payroll-locks-http.spec.ts` (ready fixture; the "documented gap" test now asserts 409) and TIME-01's lock-waits test (now a ready one-day period; its intent is unchanged).
+  - **Performance** (opt-in perf spec, 2,000 × 28; the dev machine was noisy and the unchanged Unit 20.2 summary varied 3.7–9.4 s):
+    - readiness ≈ 6–12 s;
+    - lock ≈ 8–17 s;
+    - readiness SQL ≈ 121 ms per 250-employee chunk; the rest is the reused 20.2 per-day evaluation.
+  - **Verification:**
+    - Full API suite **254 passed / 0 failed / 2 skipped (opt-in perf)**, twice.
+    - API typecheck and build ✅; web typecheck, lint and build ✅; root typecheck 5/5, lint 5/5, build 4/4 ✅.
+    - No Rust, schema, mobile or biometric changes.
+  - **Limitations:**
+    - Real periods are not ready until a working calendar exists.
+    - Shifts with break or grace always block until D1/D2.
+    - While a lock evaluates, period-date recalculations and approvals wait about 8–12 s, against their 20 s transaction timeout; to be monitored.
+    - Shift/assignment freshness still uses `updatedAt` (no API edits shifts).
+    - No browser click-through by the agent (no credentials).
+
+- UNIT HR-POLICY-01 — Working Calendar, Rest Days, Public Holidays and Approved Leave: **COMPLETE as a safe technical foundation (2026-11-09). NOT payroll-ready**: no HR policy has been entered or approved, and leave is not integrated.
+  - **Audit (before):**
+    - Shift assignments: dated, but no API and no weekday data.
+    - Employee work location: current value only, no history.
+    - No rest days, no holidays, no day overrides.
+    - **No leave data at all**: only an undated `EmployeeStatus.ON_LEAVE`; the `LEAVE`/`HOLIDAY`/`WEEK_OFF` summary statuses are never produced.
+    - Payroll locks and corrections exist.
+  - **Schema:** additive migration `20261109090000_hr_policy_01_working_calendar` (3 enums, 4 tables, `RESTRICT` foreign keys, 8 CHECK constraints).
+    - SQL reviewed: no drops or rewrites.
+    - Applied to `recafco_hrms_test` by the test global setup first; full regression passed.
+    - **Then applied to dev with `migrate deploy`** after verified backup `recafco_hrms_dev-20261109T064812Z.dump` (SHA-256 `0ae4c41f…c7f`; an earlier pre-unit backup `…061404Z.dump` also exists) and an explicit target check.
+    - The new dev tables are empty; nothing was seeded or invented.
+  - **Resolver and integration:** pure resolver plus bulk loader, wired into the Unit 20.2 report (now `monthly-attendance-basis/2`) and Unit 21.1 readiness (`payroll-closing-readiness/2`). With no calendars, behaviour is identical to before: all earlier tests pass unchanged except the version string.
+  - **API:** the `work-calendars` module and `public-holidays` controller. Permissions `workCalendars.read`, `.manage` and `.activate` (activate = SUPER_ADMIN only, pending HRP-02).
+    - New guard method `assertDateRangeNotLockedInTransaction`.
+    - Every mutation is audited.
+  - **Web:** three pages (`/work-calendars`, `/public-holidays`, `/calendar-coverage`), shared `components/work-calendars/calendar-ui.tsx`, client `lib/api/work-calendars.ts`, and a "Day type" column in the employee daily breakdown.
+  - **Decision register:** `docs/architecture/hr-policy-decision-register.md` (HRP-01…HRP-10, all PENDING).
+  - **Tests:**
+    - New `test/work-calendars/working-calendar.spec.ts`, **22 tests** covering all 24 required cases (some combined): five/six-day schedules, employee rest days, locations, effective dates and transfer, employment bounds, holiday on a workday or rest day, leave not integrated, missing calendar, conflicts, overnight, drafts inactive, rest or scheduled day without punches, closing ready or not, totals across a calendar change, RBAC, two deterministic races, and locked-period protection. Plus work on a rest day and the draft preview.
+    - **Mutation check:** disabling the range lock guard fails the race test and the locked-period test.
+    - Volume test: all 2,000 employees on an ACTIVE calendar, plus a coverage timing.
+  - **Verification:**
+    - `test:safety` 18/18.
+    - Full API suite **276 passed / 0 failed / 3 skipped** (opt-in perf) on three runs. **One earlier full run had 1 failure** in Unit 21.1's "a LOCKED period cannot be locked again"; it was not reproduced in 8 isolated runs or 3 further full runs, and its message was not captured (open question).
+    - API/web typecheck, lint and build ✅; root typecheck 5/5, lint 5/5, build 4/4.
+    - Rust `scripts/cargo.sh test`: 61 passed / 0 failed / 2 ignored (unchanged, no Rust changes).
+  - **Performance** (2,000 × 28, every employee calendar-resolved; dev machine heavily loaded, the same unchanged endpoint varied up to 5×):
+
+    | Measure | Time |
+    |---|---|
+    | One employee-month | 30–82 ms |
+    | 100 employee-months (one page) | 0.29–1.17 s |
+    | 2,000 employee-months (summary) | 4.0 s best / 19.7 s under load |
+    | Coverage | 1.9 s under load |
+    | Readiness | 7.3–15.5 s |
+    | Lock (readiness plus stamping 56k summaries) | 19.6–32 s under load |
+
+    Calendar loading adds a fixed number of queries per chunk (no N+1).
+  - **Dev RBAC:** the new permissions exist in code only. Dev needs the idempotent `create:super-admin` bootstrap re-run (the same verified procedure as Unit 21) before anyone can open the new pages. **Not run in this unit.**
+  - **Dev audit:** two unrelated browser `LOGIN_SUCCESS` rows appeared during the unit (05:30Z, 06:33Z).
+
+- UNIT RUST-04 — Biometric Database Integration and Identity Mapping Audit: **COMPLETE as an audit/design + synthetic unit (2026-11-08). No live source verified.**
+  - **Access status:**
+    - RECAFCO IT has provided **no** connection details, credentials or schema for the biometric database.
+    - The repository has no such configuration, and all original *Device Integration Questions* remain open.
+    - **No connection was attempted**; no credentials were searched for or extracted; nothing in Pinnacle or the biometric source was touched.
+    - The engine, schema, identifiers, direction semantics and timestamp representation are all **unknown** and not assumed.
+  - **Connector core** (`apps/attendance-engine/src/biometric/`: `model`, `identity`, `event_key`, `direction`, `timing`, `connector`):
+    - pure, source-agnostic logic behind `SourceReader` (read-only, indexed range reads, bounded batches) and `ImportSink` (the existing idempotent `POST /attendance-punches/device-import` contract + an exception queue);
+    - `SourceEvent` has no template fields and rejects unknown fields.
+    - Rules:
+      - device event time is official; sync time is separate; device-local time is converted with a per-device UTC offset;
+      - `DELAYED_SYNC` flag over 30 min; events with the device clock ahead by more than 5 min are held;
+      - source/device-scoped idempotency keys;
+      - effective-dated, device-scoped-first identity mapping (never names);
+      - unknown device/employee/direction, ambiguous mappings, inactive devices and missing times are held;
+      - direction is never inferred from order;
+      - the checkpoint only advances past fully handled events, with an overlap re-read;
+      - a source or sink failure returns the last durable checkpoint.
+  - **Synthetic tests:** `tests/biometric_connector_test.rs` **21/21 passed** — all 15 required scenarios plus identity mapping, inactive device, sink failure, restart from a persisted checkpoint, incremental reads, template rejection and UTC precedence.
+    - S06 proves with the RUST-02 engine that raw device log numbers would trigger the V44 cross-device duplicate rejection, while scoped keys do not. **Duplicate policy unchanged.**
+    - Mixed-source and overnight cases run through the RUST-03 summary engine.
+  - **Docs:** `docs/architecture/biometric-integration.md` covers confirmed vs unknown, the IT information checklist, a field-mapping template, the identity-mapping table design, keys, timestamps, direction, connector architecture, security, volume, monitoring and the next unit. `context/architecture.md` Rust rule 9.
+  - **Verification:**
+    - cargo fmt ✅, clippy `-D warnings` ✅ (one `result_large_err` was fixed by boxing `HeldEvent`, not suppressed), release build ✅.
+    - `cargo test`: all binaries pass, including the 21 biometric tests, both parity suites, health and lifecycle.
+    - **One intermittent failure was observed once** in RUST-01's `tests/lifecycle_test.rs` (7/8 on the first run after compiling). The failing test's name was not captured.
+      - It did not recur in 21 subsequent runs: 6 full-suite runs, 12 under heavy CPU load, and 3 immediately after a forced relink.
+      - It is recorded as an open issue (see Open Questions); no fix was guessed.
+    - TypeScript (no TS changes in this unit): safety suite 18/18; root typecheck 5/5, lint 5/5, build 4/4.
+  - **Not done (blocked on IT):** any real connection, schema verification, reader implementation, Prisma tables (identity mapping/checkpoint/exception queue), batch import endpoint, live sync.
+
+- UNIT RUST-03 — Shift-Aware Working Hours and Mixed-Source Attendance: **COMPLETE (2026-11-08)**.
+  - **Preflight:** verified dev backup `recafco_hrms_dev-20261108T114612Z.dump` (SHA-256 `63c950c1…889f`); isolation suite 18/18. No migrations.
+  - **Audit of `AttendanceSummaryCalculatorService.calculateForEmployeeDate`:**
+    - Eligible = ACCEPTED / ACCEPTED_WITH_WARNING in the Kuwait day `[00:00, 24:00)`. Official IN = earliest; official OUT = latest; source-agnostic.
+    - The shift is the overlapping assignment with the latest `effectiveFrom` (`isActive` ignored).
+    - Minutes = `max(0, Math.round(Δ/60 s))`, half-up.
+    - Status: LATE if late > 0, PRESENT, MISSING_PUNCH, ABSENT.
+    - Locks: the period lock refuses first, then the summary lock.
+    - `calculationVersion` = previous + 1; in-day `isOfficial` flags are reassigned.
+  - **Defects D1–D11 documented, not corrected** (`docs/architecture/shift-payroll-rules.md` §1):
+    - grace not applied; break not deducted; 30 s late = LATE;
+    - overnight split across calendar days; OUT-before-IN shows PRESENT; inactive shift still applies;
+    - tie ordering undefined; no absence/weekend/holiday awareness; overtime without approval; no late minutes without an OUT.
+  - **Rust modules:** `punch_pairing`, `shift`, `working_time`, `summary_status`, `summary` (+ `DailyAttendanceStatus` in `types`). Pure, clock-free and database-free; contract `attendance-daily-summary-result/1`. Not a writer, not wired.
+  - **Fixtures:** `packages/attendance-test-vectors/summary-v1.*` — 48 scenarios (all 28 required + edges), recorded from the unmodified calculator via `apps/api/test/parity/summary-parity.spec.ts`, reviewed, frozen. The comparator gained an exact `--summary` mode.
+  - **Results:**
+    - NestJS 48/48, Rust 48/48 (first run), direct cross-check **48/48 identical, every field exact**.
+    - Input-order independence was verified.
+    - 4 mutation tests were all detected.
+    - Mixed-source combinations verified in S07–S10, S16 and S33; each official punch keeps its own source.
+  - **Design docs (no activation):**
+    - `docs/architecture/shift-payroll-rules.md`: current rules, defects, and future rules classified EXISTING / PROPOSED / HR, including the per-employee weekend guard-rail.
+    - `docs/architecture/live-attendance-timer-contract.md`: server-confirmed IN, `Date`-header offset, no per-second writes, restart recovery, biometric reconciliation, active vs finalised.
+  - **Benchmark** (`examples/summary_bench.rs`, single thread, pure function):
+    - 1 employee-day p50 2.2 µs / p99 5.5 µs;
+    - 1,000 days 2.0 ms; 2,000 days 4.2 ms;
+    - 2,000 × 31 days (62,000; 248k punches) 141 ms ≈ 438k/s;
+    - peak 49 MB.
+    - The database/API costs are excluded.
+  - **Verification (all executed):**
+    - cargo fmt ✅, clippy `-D warnings` ✅, `cargo test` 40 passed / 2 ignored ✅, release build ✅.
+    - API suite **165/165** (validation parity 67, summary parity 48, safety 18, TIME-01 18, concurrency 6, legacy 8), with dev row counts identical before and after; both NestJS↔Rust cross-checks re-run (67/67, 48/48).
+    - Root typecheck 5/5, lint 5/5, build 4/4 ✅.
+    - No `apps/api/src`, web or mobile file changed in this unit.
+  - **Not done:** any fix of D1–D11 (HR decisions); timer UI; monthly aggregation (Unit 20.2); live wiring.
+
+- UNIT RUST-02 — Attendance Validation Engine Parity: **COMPLETE (2026-11-08)**.
+  - **Preflight:** verified dev backup `recafco_hrms_dev-20261108T112213Z.dump` (SHA-256 `37f6efae…4932`); isolation suite 18/18; dev and test DBs confirmed separate (test owned by `recafco_test`; dev ACL `postgres` only). No migrations; no dev writes.
+  - **Rust domain** (`apps/attendance-engine/src/domain/`: `types`, `input`, `geo`, `fraud`, `duplicate`, `time`, `validation`):
+    - pure and deterministic, with no I/O and no clock reads;
+    - ports `computeValidationResult` (mobile/device/manual paths, severity, weights, flags), the locked-period flag of `processNewPunch`, and the TIME-01 mobile intake (server receipt time official, skew/legacy/unparseable intake flags);
+    - result contract `attendance-validation-result/1`, ruleset `nest-post-time01-2026-11-08`;
+    - added dependency `chrono` 0.4.45;
+    - not wired to any route or database.
+  - **Fixtures:** new `packages/attendance-test-vectors/` (no `package.json`, so outside pnpm/turbo).
+    - Generator → `validation-v1.scenarios.json`: 67 synthetic scenarios (55 validation + 12 intake), covering all 20 required cases plus boundaries.
+    - `validation-v1.expected.json`: recorded from the **unmodified** NestJS code via `apps/api/test/parity/validation-parity.spec.ts` (`PARITY_RECORD=1`), reviewed line by line, then frozen.
+    - `parity-compare.cjs`: the canonical comparator — exact business fields, flags as a key-sorted multiset with order checked, distance tolerance 1e-6 m only.
+  - **Results:**
+    - NestJS vs expected 67/67; Rust vs expected 67/67 (on the first run; Rust was written before recording); direct NestJS↔Rust cross-check **67/67 identical, 0 mismatches, 0 flag-order differences**.
+    - Max distance difference 2.3e-13 m.
+    - The comparator was proven by 4 mutation tests (status, flag detail, 1 mm distance, flag order), all detected.
+    - **No mismatches; no NestJS behaviour changed.**
+  - **Existing behaviours pinned (not changed; see Open Questions):**
+    - V22: string `"true"` is not a mock signal;
+    - V36: WEB punches take the device path;
+    - V42: a rejected earlier punch still causes a duplicate;
+    - V44: a same-`sourceId` duplicate regardless of time or device.
+  - **Performance** (pure function, `examples/validation_bench.rs`, laptop i7-1165G7, noisy):
+    - single-thread p50 1.3–2.0 µs, p99 5.2–8.8 µs, 288k–448k validations/s;
+    - 4 threads 0.48M–1.05M/s;
+    - peak working set ≈ 8 MB.
+    - This does not represent end-to-end punch latency.
+  - **Verification (all executed):**
+    - `cargo fmt --check` ✅, `clippy -D warnings` ✅, `cargo test` 37 passed / 2 ignored ✅ (incl. 3 parity tests, 8 domain unit tests), `cargo build --release` ✅.
+    - Full API Jest suite **117/117** (parity 67, legacy 8, TIME-01 18, concurrency 6, safety 18), with dev row counts identical before and after.
+    - Root typecheck 5/5, lint 5/5, build 4/4 (forced) ✅.
+    - No web/mobile/API source file changed in this unit. Only the new parity spec and a `.gitignore` entry (`apps/api/test-output/`) were added on the TS side.
+  - **Not done:** summary/official IN/OUT parity (→ RUST-03); a read-only dev-database comparison (dev has no attendance rows after INCIDENT-01; synthetic fixtures used instead); any live wiring.
+
+- INCIDENT-01 — Database Recovery Assessment (2026-11-08), investigative only:
+  - Evidence archived outside Git at `C:\Users\5857\Documents\recafco-incidents\INCIDENT-01-20261108-124520\` (dev + test `pg_dump`s, all WAL segments, 7 days of server logs, git status/diff/untracked files, probes, SHA256SUMS — 48 files verified).
+  - Root cause reproduced exactly: the import-time global Prisma singleton was created in Jest global setup, bound to dev via `packages/db/.env`, and leaked into in-band test sandboxes through `jest-environment-node`'s global copying, while a text-only guard passed.
+  - Recovery assessment: no PITR, no usable WAL (decoded: no pre-incident dev rows), no `recafco_hrms` dumps. VSS later reported "No items found". **Data unrecoverable**, and all of it predates 2026-10-14.
+
+- INCIDENT-02 — Permanent Test Database Isolation and Safe Development Recovery (2026-11-08):
+  - **Prisma fix:**
+    - `packages/db/src/client.ts` has no import-time construction and no `globalThis` cache; it exports `createPrismaClient(url)` (explicit `datasourceUrl`) and `getSharedPrismaClient()` (lazy, throws under Jest).
+    - `DatabaseService` takes `@Inject(PRISMA_CLIENT)`; `DatabaseModule` provides it via factory; `create-super-admin.ts` uses `getSharedPrismaClient()`.
+    - The test harness uses only `test/support/test-prisma.ts`, and global setup verifies the live connection before `prisma migrate deploy` as the test role.
+  - **Role and privileges** (`packages/db/scripts/provision-test-database.cjs`, run once, idempotent):
+    - Role `recafco_test` with no elevated attributes or memberships; owns the new `recafco_hrms_test`.
+    - The old test DB was renamed (not dropped) to `recafco_hrms_test_incident01_archive`.
+    - PUBLIC revoked on the test DB, the archive, and **`recafco_hrms_dev` (CONNECT/TEMP)**.
+    - A role-scoped `pg_hba.conf` block was inserted before all existing rules (original saved to `...\INCIDENT-02-20261108-130608\`). It was validated through `pg_hba_file_rules` (0 errors, all 6 original rules intact) before `pg_reload_conf()`.
+    - On its first pass the script's own content check failed (Windows `COPY TO` writes CRLF). It restored the original file without reloading, and the restored file was verified identical to the original (5,649 bytes) before the corrected re-run.
+  - **Guard:** `test/support/database-guard.ts` — flag + live identity + marker on the same transaction connection.
+  - **Safety suite:** `test/safety/database-isolation.spec.ts`, **18/18 passed**, non-destructive. Dev row counts were unchanged afterwards.
+  - **Backups:** `infrastructure/backups/backup-database.mjs`. A verified dev backup was taken before any privilege change: `Documents\recafco-backups\recafco_hrms\recafco_hrms_dev\recafco_hrms_dev-20261108T100337Z.dump` (164 TOC entries, decoded, SHA-256 `bedf032d…d01a`). Negative checks (wrong identity, output inside repo) refused correctly.
+  - **Reconstruction status:** dev holds only 4 TIME-01 test-fixture rows (employee `EMPMW7N37KC2`, user `USERMW7N37KF3`, work location `LOCMW7N37K61`, mobile device `android-id:DEVMW7N37KI4`, all created 2026-11-08 12:38:09 +03). There are 0 roles/permissions, and 9 migrations (TIME-01's not applied).
+    - RBAC + super-admin are rebuildable via `create:super-admin`, but it needs `BOOTSTRAP_ADMIN_USERNAME`/`BOOTSTRAP_ADMIN_PASSWORD`, which were never recorded.
+    - All employees, master data, devices and mobile registrations must be re-entered; phones must re-register.
+  - **Reconstruction executed after owner decision (2026-11-08):**
+    - (1) A fresh verified backup `recafco_hrms_dev-20261108T103649Z.dump` (SHA-256 `2978c0f6…a821`).
+    - (2) The 4 fixture rows were deleted by exact id in one transaction, which asserted `current_database()` and exactly 1 row per delete. All referencing tables were confirmed empty first.
+    - (3) The existing `create:super-admin` bootstrap was run unmodified with username `superadmin` and a random 24-char password. The password was written only to the git-ignored `apps/api/.env.bootstrap.local` and never printed.
+  - **Result:** 9 roles, 62 permissions, 229 role-permission rows, 1 user (`superadmin`, ACTIVE, SUPER_ADMIN, `mustChangePassword=true`), 1 audit row (`BOOTSTRAP_SUPER_ADMIN_CREATED`). An offline argon2 check confirmed the stored hash matches the credential file.
+  - No employees, punches or audit history were recreated; **lost historical data is NOT restored**.
+  - The owner must log in, change the password, and delete `apps/api/.env.bootstrap.local`. Master data must be re-entered and phones re-registered.
+
 ## In Progress
 
 - Finalizing MVP requirements and implementation order.
@@ -459,9 +823,45 @@ Recommended first implementation units:
 35. **Unit 20.2 — Monthly Attendance Payroll Basis Calculator (recommended next unit).** Per Unit 20.1's own instruction ("since Unit 20 is complete, the next unit is Unit 20.2, then Unit 21"), and confirmed against this file's own Completed section that Unit 20 (Payroll Lock Backend) is indeed done — Unit 20.2 is correct, not a reversion to Unit 21 or back to Unit 20.1.
 36. Unit 21 — Web Payroll Lock / Monthly Closing Screen, after Unit 20.2.
 37. Implement shift service/API layer on top of the Unit 1 schema.
+38. ~~RUST-01 — High-Performance Architecture Audit and Rust Service Foundation.~~ Done — see above and `docs/architecture/rust-attendance-engine.md`.
+39. **RUST-02 — Attendance Validation Engine Parity (next Rust-track unit).** Port the *current* NestJS validation + daily-summary rules into pure, I/O-free functions in `apps/attendance-engine/src/domain/`; create shared JSON golden test vectors; add a minimal TS test runner to `apps/api` that runs the **unchanged** NestJS logic against the same vectors; add a read-only shadow-diff over a dev date range. No DB writes, no live wiring, no behaviour fixes. Exit: 100% vectors pass in both languages, zero unexplained shadow diffs, all cargo + pnpm gates green. Full spec: design doc §10.
+40. Recommended NestJS-track unit raised by RUST-01's audit (needs HR/IT decision first): **server-authoritative mobile punch time** (finding F1 — official mobile IN/OUT currently comes from the phone clock), plus a mobile `Idempotency-Key` (F6). → Became TIME-01, now in progress and paused (see Completed).
+41. ~~INCIDENT-01 / INCIDENT-02.~~ Done — see Completed and `docs/incidents/`.
+42. Dev database reconstruction — RBAC + `superadmin` rebuilt and fixture rows removed (see INCIDENT-02 entry). **Still owner-side:** change the temporary password, delete `apps/api/.env.bootstrap.local`, re-enter master data, re-register phones.
+43. ~~Resume TIME-01.~~ Done — TIME-01 complete (see Completed).
+44. ~~RUST-02 — Attendance Validation Engine Parity.~~ Done — see Completed and design doc §11.
+45. ~~RUST-03 — Shift-Aware Working Hours and Mixed-Source Attendance.~~ Done — see Completed and design doc §13.
+46. ~~RUST-04 — Biometric Database Integration and Identity Mapping Audit.~~ Done as design + synthetic verification — see Completed and `docs/architecture/biometric-integration.md`.
+48. **Next biometric unit: BIO-01 — Biometric Source Read-Only Connection. BLOCKED** until RECAFCO IT supplies the items in `biometric-integration.md` §2: engine/version, a read-only login or view, schema, event-id semantics, the employee-id field, direction codes, timestamp semantics, sync behaviour, load windows, and the device inventory. Then: a read-only reader → dry-run (classify, import nothing) → reconciliation against Pinnacle → reviewed Prisma tables (identity mapping, checkpoint, exception queue) → batch import endpoint.
+49. ~~Unit 20.2 — Monthly Attendance Payroll Basis Calculator.~~ Done — see Completed.
+51. ~~Unit 21 — HR Monthly Attendance Review and Monthly Closing Web UI.~~ Done — see Completed. Still owed: a logged-in click-through by the owner (super-admin, then an HR/payroll user, then an employee user).
+52. ~~Unit 21.1 — Payroll Closing Backend Safety and Readiness Validation.~~ Done — see Completed. The unit spec decided strict blocking with no override.
+53. ~~HR-POLICY-01 — Working Calendar.~~ Done as a technical foundation; see Completed. Activation is blocked on HR decisions HRP-01…HRP-10 (decision register) and on the dev RBAC bootstrap re-run.
+54. **Next: LEAVE-01 — Leave Request and Approval (the authoritative approved-leave source).** Today no leave data exists, so a scheduled day without attendance can never be resolved as leave. Needs HRP-05 first (is the HRMS the leave system of record?). Produces dated, approved leave with approver and reference, exposed to the calendar resolver as precedence level 2. In parallel, HR enters and approves real calendars and holidays (HRP-01/02/03).
+50. ~~Unit 21 — Web Payroll Lock / Monthly Closing Screen.~~ (superseded by item 51) HR/payroll web screens over the existing payroll-lock API and the new `/payroll-attendance/monthly*` endpoints:
+    - period overview with review-status counts;
+    - employee list with exception codes;
+    - drill-down daily breakdown;
+    - lock/unlock actions using the existing endpoints.
+
+    It shows INCOMPLETE/NEEDS_REVIEW prominently and never presents totals as approved. Before it: re-run the RBAC bootstrap on dev so `payrollAttendance.read` exists. In parallel: HR decisions in `shift-payroll-rules.md` §2/§3 (the rest-day calendar is the key blocker for CALCULATED months).
+47. Pending HR decisions that block payroll-grade calculation are listed in `docs/architecture/shift-payroll-rules.md` §2: grace, breaks, overnight pairing, weekends per employee, holidays, leave, overtime approval, absence materialisation, split sessions.
 29. Recommend a real interactive browser click-through pass across Units 11–14 and 19.2's web screens, AND a real Android emulator/iOS simulator/physical-device click-through pass across Units 15–19.2's mobile screens, before this gap grows further — no browser- or emulator-automation tool has been available in any frontend unit so far (see Open Questions). This gap directly contributed to Unit 18.1's bug (a real phone screenshot found a navigation dead-end that no amount of typecheck/lint/bundle-compile verification could have caught), and Unit 19.2's change-password/reminder flows are still only curl- and bundle-compile-verified, never clicked through by a human or automated browser/device.
 
 ## Open Questions
+
+### Working Calendar (HR-POLICY-01)
+
+- All ten decisions in `docs/architecture/hr-policy-decision-register.md` (HRP-01…HRP-10) are open. The most urgent are HRP-01 (rest-day patterns), HRP-02 (who approves/assigns), HRP-03 (holiday source/owner) and HRP-05 (leave system of record).
+- One unexplained intermittent test failure: Unit 21.1 "a LOCKED period cannot be locked again", seen once in a full run on 2026-11-09 and not reproduced since.
+
+### Monthly Closing (Unit 21)
+
+- ~~**Lock gate (critical):** block or override?~~ **Resolved by Unit 21.1:** strict blocking, no override for any role. A future override needs formal HR/management approval and a separate audited design.
+- **Working calendar (blocks every real close):** weekend pattern per employee/shift/location, the public-holiday list and who maintains it, and the source of approved leave.
+- Should break/grace configured on a shift block closing until D1/D2 are decided (current fail-closed behaviour), or should HR first switch them off on shifts?
+- **Who may unlock?** Only SUPER_ADMIN holds `payrollLocks.unlock`. HR_MANAGER and PAYROLL_OFFICER hold the legacy `attendance.payroll.unlock`, which no endpoint checks. Should either role be able to reopen a period?
+- Should the monthly endpoints gain name/code search and a review-status filter? The UI uses `/employees?search=` → `employeeId` and offers no status filter.
 
 ### Company Policy Questions
 
@@ -709,6 +1109,74 @@ Recommended first implementation units:
 - **No native splash-screen image asset was custom-designed for this unit** — the existing square, white-background `assets/icon.png` (the official RECAFCO logo, already used as the app icon) was reused as-is for the splash image too, per the task's own "if the logo file already exists, reuse it" instruction. If a dedicated, more minimal splash-only mark (e.g. just the wing icon without the full wordmark/tagline) is ever supplied, swapping the `expo-splash-screen` plugin's `image` path in `app.json` is the only change needed.
 - **No emulator/physical device was available to visually confirm the native splash screen actually renders correctly** (background color, image centering, timing) — this is the same disclosed gap carried from every mobile unit since Unit 15. Verification was limited to confirming the Expo config plugin is correctly declared and that the JS-rendered branded loading screen (which *can* be verified via bundle content) compiles and contains the expected branding. A real device/emulator/EAS-build check is recommended before this reaches real employees, same as the outstanding recommendation already on file from Units 15–19.5.
 - **No mobile dev server is left running as of the end of this unit** (see Session Notes) — unlike several prior mobile units that found and reused an already-running instance untouched, this unit's own dependency install killed the one that was running, and both of its own replacement instances were stopped after verification. The next unit touching `apps/mobile` will need to start a fresh `expo start` itself.
+
+### Unit RUST-01 (Rust Attendance Engine Foundation) Open Questions
+
+- **F1 — mobile official time**: what maximum client/server clock skew is acceptable for a mobile punch, and when exceeded should the punch use server time, be flagged, or go to review? (Currently the phone clock is used as official time.) HR + IT.
+- **Overnight shifts (F3)**: is the attendance date the shift-start date or the punch date? Needed before either NestJS or Rust can fix overnight grouping. HR.
+- **Grace / breaks (F2)**: should `gracePeriodMinutes` forgive late minutes entirely or only suppress the LATE status? Are breaks punched (`BREAK_START`/`BREAK_END`) or auto-deducted via `breakMinutes`? HR.
+- **Mixed-source precedence**: when both a mobile and a biometric punch exist for the same direction, is earliest-IN/latest-OUT regardless of source correct, or does one source take precedence? HR.
+- **Biometric identity (F8)**: do the real devices report RECAFCO `employeeCode` or a device-local enrolment ID? Determines whether a device-user mapping table is required. IT / device vendor.
+- **Device clock drift / sync delay**: maximum acceptable biometric sync delay and clock drift before a punch is flagged. IT.
+- **Read-only DB role**: may IT create `recafco_engine_ro` (SELECT-only) on dev/staging/prod? Until then the engine relies on its session-level read-only guard alone.
+- **Connection budget**: production PostgreSQL `max_connections`, to size API + engine pools.
+- **Load-test pass criteria** (design doc §8: p95 < 500 ms / p99 < 1.5 s at 2,000 VUs, < 0.1% errors, zero correctness diffs) need management approval.
+- **Pinnacle functional analysis document** was requested by the RUST-01 task but is not in the repository. If provided, review it against design doc §3; do not adopt vendor rules without HR confirmation.
+- **Production Rust build target**: plan is a Linux container build (`rust:1.99` builder → slim runtime); the Windows-GNU toolchain + dlltool shim is a dev-machine workaround only. To be decided in a deployment unit.
+- **Local port coordination**: during RUST-01, ports 3000 and 4000 on the dev machine were served by a different project (`recafco-fmp`), and recafco-hrms's own `nest start --watch` had no listening child. Engine uses 4100; confirm a project-wide local port map.
+
+### Unit TIME-01 Open Questions
+
+- **Clock-skew flag threshold**: 300 s (`CLIENT_CLOCK_SKEW_FLAG_SECONDS`) is informational only. Should HR also see skewed punches in an exception queue, or should a large skew route the punch to review? HR/IT.
+- **Old APK sunset**: pre-TIME-01 APKs can't move official time any more, but they have no request-id replay protection. When should `clientRequestId` become mandatory (a 400 for requests without it)? It needs the APK rollout to finish first.
+- **Retry attempts survive only in memory**: an app kill between a lost response and the retry starts a new attempt, so the server's 2-minute duplicate window is the fallback. Should pending attempts be persisted in SecureStore?
+- **Different-id simultaneous punches**: there's a theoretical sub-millisecond window, when two inserts commit out of `createdAt` order, where both could be ACCEPTED. It wasn't observed in 72 parallel test rounds, and the official IN/OUT is still single. Closing it fully needs per-employee serialisation of intake validation. Is it worth doing before production load testing?
+- **Summary audit row** is still written after the summary transaction (F7). Moving it inside is a candidate for the RUST cutover design (§6.7).
+
+### Unit RUST-03 Open Questions (daily-summary defects — all HR decisions; full list in `docs/architecture/shift-payroll-rules.md`)
+
+- **D5 — OUT before IN is PRESENT.** An OUT at 06:00 followed by an IN at 07:00 gives PRESENT with 0 minutes worked, hiding a missing punch. Should it become MISSING_PUNCH or an exception?
+- **D4 — overnight shifts.** Is the attendance date the shift-start date? What are the pairing windows around shift start and end?
+- **D3 — 30 seconds late is LATE.** Should minutes be truncated, or a grace threshold applied before LATE?
+- **D1/D2 — grace and breaks** are stored per shift but unused. Which semantics apply?
+- **D9 — weekends, holidays and leave.** Is the weekend per employee, per site or company-wide (as a default only)? Which holiday calendar applies? How is leave linked?
+- **D10 — overtime approval** rules, minimum blocks and caps (minutes only; no salary amounts in HRMS).
+- **D6/D8 — shift data hygiene.** Should the API forbid overlapping assignments and assigning inactive shifts?
+
+### Unit RUST-02 Open Questions (existing NestJS behaviours surfaced by parity fixtures — not changed)
+
+- **V42 — rejected punches still count as duplicates.** A mobile punch rejected (e.g. outside the geofence) makes any same-type punch within 2 minutes a `REJECTED_DUPLICATE`. That includes a corrected retry from inside the geofence, which is then rejected for being a duplicate instead of being accepted. Intended? HR/IT.
+- **V44 — `sourceId` match ignores time and device.** Two biometric events with the same device-log id (`sourceId`) are duplicates even hours apart or from different devices. Device log ids may restart or collide across devices, so should matching be scoped to `attendanceDeviceId` (as the DB unique constraint is)? IT/vendor.
+- **V36 — WEB-source punches take the physical-device path** and always land in `PENDING_HR_REVIEW` (no device). Is web punching meant to exist, and with what validation?
+- **V22 — mock signals must be boolean `true`.** The shipped app sends booleans, so there's no current exposure. Note it for any third-party client.
+- Any change to the above requires a new `rulesetVersion`, re-recorded expected outcomes, and the same change in Rust.
+
+### INCIDENT-01/02 Open Questions
+
+- ~~Super-admin credentials for reconstruction~~ — resolved: owner chose `superadmin` + generated temporary password (forced change at first login). **Owner action:** log in, change the password, delete `apps/api/.env.bootstrap.local`.
+- ~~Fixture rows in dev~~ — resolved: owner chose deletion; the 4 rows were deleted after a verified backup.
+- **Is any copy of the lost dev data held elsewhere** (exports, screenshots, the test phone)? If so it can be re-entered. Nothing may be invented.
+- **Development backup cadence**: the policy now requires a verified backup before risky units. Should a scheduled daily dump (Task Scheduler + `backup-database.mjs`) also be set up? Retention?
+- **PostgreSQL WAL archiving** is off server-wide. Enabling `archive_mode` would allow PITR for local data, but it's a server-level change shared with other projects (fmp, maintenance). IT/owner decision.
+- **Should the old archive DB `recafco_hrms_test_incident01_archive` be dropped** after review? It contains only test fixtures and is preserved in the INCIDENT-01 dump.
+- **Other projects on this PostgreSQL server** (`recafco_fmp_*`, `recafco_maintenance`, `auditflow_ims`) still allow PUBLIC CONNECT. They were deliberately not modified. Their owners may want the same review.
+
+### Unit RUST-04 Open Questions (for RECAFCO IT — blocking BIO-01; full list in `docs/architecture/biometric-integration.md` §2)
+
+- The biometric database engine/version, host/port, network path, TLS — and a dedicated **read-only** login (ideally a view exposing only event fields; no template tables).
+- The attendance-event table schema, primary key, and a monotonic sequence/insertion-time column (indexed?).
+- Device log number semantics: unique per device? reset after clear/firmware? Is the row id stable? Are rows ever updated or deleted?
+- Person identifier: the same enrolment number on every machine? Ever reused? Does it equal the HR employee code?
+- Direction: status column + full code list (incl. break/OT), or entry/exit-only terminals?
+- Time: local or UTC? Is an insertion/upload time stored? Are device clocks NTP-synced?
+- Pinnacle's read schedule and acceptable query load during peaks.
+- Device inventory: serial, site, vendor/model, role.
+- HR: if any devices are timestamp-only, which direction policy (shift window, alternating, or manual review)?
+- **Engineering (non-blocking):** RUST-01 `tests/lifecycle_test.rs` failed once (1 of 8) and then passed in 21 consecutive runs.
+  - The likely suspects are the timing-sensitive tests:
+    - `binary_starts_and_serves_health_on_configured_port`: it uses a probe-then-release free-port pattern, which is a known race, plus a 10 s start deadline;
+    - `shutdown_is_forced_after_grace_period`.
+  - Next time it fails, capture the full output. Then remove the port race (e.g. let the binary bind port 0 and report it) instead of loosening timeouts.
 
 ### Device Integration Questions
 
@@ -1174,7 +1642,61 @@ Reason: Expo's native splash screen (config-plugin driven, shown before any JS e
 
 Reason: the task's own instruction was to reuse an existing logo file if one exists and is suitable; this one already is — a 3375×3375 square PNG with a plain white background, meaning it needs no cropping/padding to look correct centered on a white `#FFFFFF` splash background with `resizeMode: "contain"`. Creating a second, separate `splash-icon.png` purely to have a differently-named file would have been duplication with no visual benefit, since the exact same pixels would result either way.
 
+### Decision: Rust is introduced as an isolated attendance engine (strangler pattern), not a rewrite of the NestJS backend
+
+Reason: the NestJS pipeline is already verified and payroll-relevant; replacing it wholesale would risk existing behaviour. Rust takes over only after parity (RUST-02) and a shadow phase prove identical results, and only behind a single ownership switch. Exactly one component may ever write official summaries for an employee/date (`context/architecture.md` invariant 16).
+
+### Decision: the engine's database access is read-only, enforced in code (`default_transaction_read_only=on` per session) and verified by `/ready`
+
+Reason: a dedicated read-only role needs IT approval that has not been given; a code-level guard that `/ready` checks on a live connection (and fails closed on) makes the read-only promise true today even if the engine is pointed at a superuser URL, as it was in local verification. Verified live: DDL rejected with SQLSTATE 25006.
+
+### Decision: no Redis/BullMQ for the future attendance processing path; a PostgreSQL job table (`SKIP LOCKED`, leases, per-employee/day coalescing) instead
+
+Reason: ~2,000 employees punching in a ~15-minute window is a few punches/second with modest bursts — well inside PostgreSQL's capacity — and keeping the queue in the same database as the facts lets enqueue happen in the same transaction as the raw-punch insert (no dual-write gap). Revisit only with measured load-test evidence (design doc §8).
+
+### Decision: Windows-GNU Rust host with an LLVM-dlltool shim on the dev machine, instead of installing Visual Studio Build Tools
+
+Reason: the MSVC host needs multi-GB, admin-level Build Tools; the GNU host builds pure-Rust dependencies with its bundled linker, and the only missing piece (an assembler for GNU `dlltool`) is avoided by pointing rustc at rustup's own `llvm-tools`. Everything stays user-local and per-process. Production builds are expected on Linux, where none of this applies.
+
+### Decision: `apps/attendance-engine` is not registered as a pnpm/turbo workspace package
+
+Reason: adding a `package.json` would make `pnpm build`/`lint` invoke cargo on every developer machine and CI job, coupling the JS pipeline to a Rust toolchain that is not yet required for any live feature. Cargo gates are run explicitly (`scripts/cargo.sh`); revisit when the engine joins the deploy path.
+
+### Decision: parity expected outcomes are recorded from the unmodified NestJS code, reviewed, then frozen — not hand-written
+
+Reason: NestJS is the authoritative implementation. Hand-written expectations could encode a misunderstanding in both the fixtures and the Rust port. Recording through the real `processNewPunch`/`createMobile` paths in the isolated test DB captures actual behaviour. A line-by-line review against the audited rules guards against freezing a NestJS bug unnoticed. The Rust engine was implemented before recording, so the comparison stayed independent.
+
+### Decision: shared fixtures live in `packages/attendance-test-vectors/` without a `package.json`
+
+Reason: both a Jest spec (TypeScript) and a cargo test (Rust) read them by relative path. Keeping them out of the pnpm workspace means no build step, no dependency, and no effect on the turbo pipelines.
+
+### Decision: test isolation is enforced by the database server (role + pg_hba), not only by application code
+
+Reason: INCIDENT-01's guard lived entirely in test code and was defeated by a module-loading subtlety. The test role is now physically unable to connect to any database except `recafco_hrms_test`: `pg_hba.conf` rejects it, and dev has no PUBLIC CONNECT. So even a future harness bug cannot reach dev. The application-level guard (live identity + marker + flag on the same connection) is a second, independent layer.
+
+### Decision: `@recafco/db` exposes factories, not an import-time singleton
+
+Reason: the import-time `globalThis` singleton was the root cause. The shared client is now lazy, module-scoped, and refuses to run under Jest. `DatabaseService` receives its client through DI (`PRISMA_CLIENT`), so tests can inject an explicitly bound client.
+
+### Decision: the pre-incident test database was renamed, not dropped
+
+Reason: provisioning needed a test DB owned by the least-privileged role. Renaming kept every byte of incident-era state available for review, with no destructive step, and access is revoked from PUBLIC. Dropping it is an owner decision.
+
+### Decision: super-admin reconstruction waits for owner-supplied credentials
+
+Reason: roles and permissions are fully defined in code, but the super-admin is a real account whose username was never recorded. Inventing credentials or modifying the bootstrap to skip them was rejected.
+
 ## Session Notes
+
+- INCIDENT-02 (2026-11-08) changed PostgreSQL server state on this machine. All changes are recorded and reversible:
+  - created role `recafco_test`;
+  - renamed `recafco_hrms_test` → `recafco_hrms_test_incident01_archive`;
+  - created a new `recafco_hrms_test` (owner `recafco_test`);
+  - revoked PUBLIC privileges on those two and CONNECT/TEMP on `recafco_hrms_dev`;
+  - inserted a 6-line role-scoped block into `pg_hba.conf` (original saved in `Documents\recafco-incidents\INCIDENT-02-20261108-130608\`) and reloaded.
+
+  No other database or role was modified. No dev row was created or deleted. No process was stopped.
+- RUST-01 created **no database rows, roles, tables or migrations**. Live readiness tests connected to `recafco_hrms_dev` with the session read-only guard; the one write probe was rejected (25006) inside an always-rolled-back transaction. The engine release binary was started on port 4100 for a smoke test and then stopped (only its own PID); no other process was touched — the web dev server on 3000 and the API on 4000 (both belonging to a different project, `recafco-fmp`) and recafco-hrms's `nest start --watch` were left running untouched. Rust was installed user-locally (`%USERPROFILE%\.rustup`, `%USERPROFILE%\.cargo`) without modifying PATH.
 
 - Employee count corrected to 2000+ employees. Architecture and performance targets must be sized for 2000+ active employees, multi-office punching devices, and peak attendance windows.
 

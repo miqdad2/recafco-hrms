@@ -13,8 +13,10 @@ import { DesignationsModule } from './designations/designations.module';
 import { EmployeesModule } from './employees/employees.module';
 import { HealthModule } from './health/health.module';
 import { MobileDevicesModule } from './mobile-devices/mobile-devices.module';
+import { PayrollAttendanceModule } from './payroll-attendance/payroll-attendance.module';
 import { PayrollLocksModule } from './payroll-locks/payroll-locks.module';
 import { UsersModule } from './users/users.module';
+import { WorkCalendarsModule } from './work-calendars/work-calendars.module';
 import { WorkLocationsModule } from './work-locations/work-locations.module';
 
 @Module({
@@ -36,6 +38,8 @@ import { WorkLocationsModule } from './work-locations/work-locations.module';
     MobileDevicesModule,
     AttendancePunchesModule,
     PayrollLocksModule,
+    PayrollAttendanceModule,
+    WorkCalendarsModule,
     AttendanceSummariesModule,
     AttendanceCorrectionsModule,
   ],

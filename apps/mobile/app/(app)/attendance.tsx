@@ -15,6 +15,12 @@ import {
   listMyAttendancePunches,
   type AttendanceRawPunch,
 } from '../../src/lib/api/attendance-punches';
+import {
+  createPunchAttempt,
+  isOutcomeUnknown,
+  reusablePunchAttempt,
+  type PunchAttempt,
+} from '../../src/lib/attendance/punch-attempt';
 import { listMyAttendanceSummaries, type AttendanceDailySummary } from '../../src/lib/api/attendance-summaries';
 import { ApiError } from '../../src/lib/api/client';
 import { getMyMobileDevices, type MobileDevice } from '../../src/lib/api/mobile-devices';
@@ -88,6 +94,8 @@ export default function AttendanceScreen() {
 
   const [isRefreshing, setIsRefreshing] = React.useState(false);
   const [submittingPunchType, setSubmittingPunchType] = React.useState<'IN' | 'OUT' | null>(null);
+  /** TIME-01: the last attempt whose server outcome is unknown, retried verbatim by the next tap of the same button. */
+  const pendingAttemptRef = React.useRef<PunchAttempt | null>(null);
   const [punchResultMessage, setPunchResultMessage] = React.useState<PunchResultMessage | null>(null);
 
   const loadDeviceStatus = React.useCallback(
@@ -297,6 +305,18 @@ export default function AttendanceScreen() {
     }
     setSubmittingPunchType(punchType);
     setPunchResultMessage(null);
+
+    // TIME-01: a previous tap of this same button whose outcome is unknown (network failure/5xx)
+    // is resent verbatim — same clientRequestId, same GPS reading — so the server returns the
+    // original result instead of recording the punch twice.
+    const retryAttempt = reusablePunchAttempt(pendingAttemptRef.current, punchType);
+    if (retryAttempt) {
+      await submitPunchAttempt(retryAttempt);
+      setSubmittingPunchType(null);
+      return;
+    }
+    pendingAttemptRef.current = null;
+
     try {
       let permissionStatus = locationPermissionStatus;
       if (permissionStatus !== 'granted') {
@@ -324,9 +344,10 @@ export default function AttendanceScreen() {
 
       const deviceIdentifierSource = deviceIdentifier.split(':')[0] ?? 'unknown';
 
-      const punch = await createMobilePunch({
+      const attempt = createPunchAttempt({
         punchType,
-        punchTimeSource: new Date().toISOString(),
+        // Diagnostic only — the server ignores this for official time (TIME-01).
+        clientReportedTime: new Date().toISOString(),
         latitude: reading.latitude,
         longitude: reading.longitude,
         gpsAccuracy: reading.accuracy,
@@ -338,20 +359,42 @@ export default function AttendanceScreen() {
           deviceIdentifierSource,
         },
       });
-
-      setPunchResultMessage(describePunchResult(punch));
-      await loadPunches({ silent: true });
+      await submitPunchAttempt(attempt);
     } catch (error) {
-      if (error instanceof ApiError && error.status === 401) {
-        await logout();
-        return;
-      }
+      // Failures before submission (permission/location) — nothing was sent, nothing to retry.
       setPunchResultMessage({
         type: 'error',
         text: error instanceof ApiError ? error.message : 'Could not submit punch. Please try again.',
       });
     } finally {
       setSubmittingPunchType(null);
+    }
+  };
+
+  const submitPunchAttempt = async (attempt: PunchAttempt) => {
+    pendingAttemptRef.current = attempt;
+    try {
+      const punch = await createMobilePunch(attempt.input);
+      pendingAttemptRef.current = null;
+      setPunchResultMessage(describePunchResult(punch));
+      await loadPunches({ silent: true });
+    } catch (error) {
+      if (!isOutcomeUnknown(error)) {
+        // The server gave a definitive answer (4xx): this attempt is finished.
+        pendingAttemptRef.current = null;
+      }
+      if (error instanceof ApiError && error.status === 401) {
+        await logout();
+        return;
+      }
+      setPunchResultMessage({
+        type: 'error',
+        text: isOutcomeUnknown(error)
+          ? 'Could not confirm your punch (network problem). Tap the same button again to retry — it will not be recorded twice.'
+          : error instanceof ApiError
+            ? error.message
+            : 'Could not submit punch. Please try again.',
+      });
     }
   };
 

@@ -241,6 +241,15 @@ export class AttendanceCorrectionsService {
       correction.requestedPunchTime !== null;
 
     const { updatedCorrection, manualPunch } = await this.prisma.$transaction(async (tx) => {
+      // Unit 21.1: re-check the period lock INSIDE the write transaction under FOR SHARE on the
+      // covering period row(s). Previously the only check ran before this transaction, so a
+      // period could become LOCKED in between and the correction would still be approved (with
+      // its manual punch) inside a locked period. PayrollLocksService.lockPeriod takes FOR UPDATE
+      // on the same row, so the two now serialise: either this commits first (and the lock's
+      // readiness check sees the approved correction and the not-yet-recalculated day), or the
+      // lock commits first and this refuses with 409.
+      await this.payrollLockGuardService.assertWorkDateNotLockedInTransaction(tx, correction.workDate);
+
       let createdPunch: AttendanceRawPunch | null = null;
       if (requiresManualPunch) {
         const punchData: Prisma.AttendanceRawPunchUncheckedCreateInput = {

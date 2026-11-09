@@ -23,6 +23,13 @@ export class PayrollLocksController {
     return this.payrollLocksService.findAll(query);
   }
 
+  /** Unit 21.1 — whether this exact period can be locked (read-only; not payroll approval). */
+  @Get(':id/readiness')
+  @Permissions('payrollLocks.read')
+  readiness(@Param('id', ParseCuidPipe) id: string) {
+    return this.payrollLocksService.readiness(id);
+  }
+
   @Get(':id')
   @Permissions('payrollLocks.read')
   findOne(@Param('id', ParseCuidPipe) id: string) {

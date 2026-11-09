@@ -1,7 +1,10 @@
 import 'dotenv/config';
-import { prisma } from '@recafco/db';
+import { getSharedPrismaClient } from '@recafco/db';
 import { PERMISSIONS, ROLE_PERMISSIONS, SYSTEM_ROLES, type SystemRoleCode } from '../auth/constants/rbac.constants';
 import { hashPassword } from '../auth/password.util';
+
+// INCIDENT-02: @recafco/db no longer exports an import-time singleton.
+const prisma = getSharedPrismaClient();
 
 const MIN_BOOTSTRAP_PASSWORD_LENGTH = 12;
 

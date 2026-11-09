@@ -1,5 +1,5 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
-import type { Request } from 'express';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { Permissions } from '../auth/decorators/permissions.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -44,12 +44,16 @@ export class AttendancePunchesController {
 
   @Post('mobile')
   @Permissions('attendancePunches.createMobile')
-  createMobile(
+  async createMobile(
     @Body() dto: CreateMobilePunchDto,
     @CurrentUser() user: AuthenticatedUser,
     @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
   ) {
-    return this.attendancePunchesService.createMobile(dto, user.userId, getRequestContext(req));
+    const { punch, replayed } = await this.attendancePunchesService.createMobile(dto, user.userId, getRequestContext(req));
+    // Body shape is unchanged for every client (the punch). Replays are signalled by header only.
+    res.setHeader('Idempotent-Replayed', replayed ? 'true' : 'false');
+    return punch;
   }
 
   @Post('device-import')

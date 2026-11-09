@@ -6,6 +6,11 @@ import {
   Clock,
   FileEdit,
   Fingerprint,
+  CalendarRange,
+  CalendarDays,
+  CalendarSearch,
+  PartyPopper,
+  LockKeyhole,
   IdCard,
   LayoutDashboard,
   MapPin,
@@ -22,6 +27,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** Permission code required to see this item. Omitted for items every authenticated user can see. */
   permission?: string;
+  /** Optional sidebar group heading; consecutive items sharing a group render under one heading. */
+  group?: string;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -50,6 +57,25 @@ export const NAV_ITEMS: NavItem[] = [
     icon: FileEdit,
     permission: 'attendanceCorrections.read',
   },
+  // Unit 21 — HR monthly review + payroll-period closing. Backend RBAC stays authoritative.
+  {
+    label: 'Monthly Attendance',
+    href: '/payroll-attendance',
+    icon: CalendarRange,
+    permission: 'payrollAttendance.read',
+    group: 'Payroll & Attendance',
+  },
+  {
+    label: 'Monthly Closing',
+    href: '/payroll-locks',
+    icon: LockKeyhole,
+    permission: 'payrollLocks.read',
+    group: 'Payroll & Attendance',
+  },
+  // HR-POLICY-01 — working calendar administration (read: workCalendars.read).
+  { label: 'Calendars', href: '/work-calendars', icon: CalendarDays, permission: 'workCalendars.read', group: 'Working Calendar' },
+  { label: 'Public Holidays', href: '/public-holidays', icon: PartyPopper, permission: 'workCalendars.read', group: 'Working Calendar' },
+  { label: 'Calendar Coverage', href: '/calendar-coverage', icon: CalendarSearch, permission: 'workCalendars.read', group: 'Working Calendar' },
   { label: 'Audit Logs', href: '/audit-logs', icon: ScrollText, permission: 'audit.read' },
 ];
 

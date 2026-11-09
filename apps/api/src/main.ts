@@ -1,10 +1,9 @@
 import 'dotenv/config';
 import 'reflect-metadata';
 import { NestFactory } from '@nestjs/core';
-import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { json, urlencoded } from 'express';
 import { AppModule } from './app.module';
+import { configureHttpPipeline } from './app.setup';
 import type { EnvConfig } from './config/env.schema';
 
 const ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS
@@ -14,16 +13,7 @@ const ALLOWED_ORIGINS = process.env.CORS_ALLOWED_ORIGINS
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule);
 
-  app.use(json({ limit: '1mb' }));
-  app.use(urlencoded({ limit: '1mb', extended: true }));
-
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
-    }),
-  );
+  configureHttpPipeline(app);
 
   app.enableCors({
     origin: ALLOWED_ORIGINS,

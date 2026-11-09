@@ -8,9 +8,11 @@ interface FormModalProps {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  /** Optional width override, e.g. "max-w-3xl" (default max-w-lg). */
+  className?: string | undefined;
 }
 
-export function FormModal({ open, title, onClose, children }: FormModalProps) {
+export function FormModal({ open, title, onClose, children, className }: FormModalProps) {
   React.useEffect(() => {
     if (!open) {
       return;
@@ -30,7 +32,7 @@ export function FormModal({ open, title, onClose, children }: FormModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/40 p-4 py-10">
-      <div className="w-full max-w-lg rounded-xl border border-border bg-surface p-6 shadow-lg">
+      <div className={`w-full ${className ?? 'max-w-lg'} rounded-xl border border-border bg-surface p-6 shadow-lg`}>
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-lg font-semibold text-foreground">{title}</h2>
           <button
