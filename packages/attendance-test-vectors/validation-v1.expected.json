@@ -1,0 +1,1524 @@
+{
+  "schemaVersion": "recafco-attendance-validation-expected/1",
+  "rulesetVersion": "nest-post-time01-2026-11-08",
+  "resultContractVersion": "attendance-validation-result/1",
+  "recordedFrom": "NestJS (unmodified): AttendanceValidationService.processNewPunch / AttendancePunchesService.createMobile, via apps/api/test/parity/validation-parity.spec.ts in record mode",
+  "recordedAt": "2026-11-08",
+  "review": "Every outcome reviewed by hand against the audited rules before freezing (RUST-02).",
+  "outcomes": {
+    "V01-clean-mobile-in": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V02-clean-mobile-out": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V03-clean-mobile-in-explicit-location": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V04-biometric-in": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V05-biometric-out": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V06-face-device-in": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V07-outside-geofence": {
+      "validationStatus": "REJECTED_OUTSIDE_LOCATION",
+      "fraudScore": 70,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "OUTSIDE_GEOFENCE",
+          "source": "VALIDATION_ENGINE",
+          "distanceMeters": 1112,
+          "allowedRadiusMeters": 100
+        }
+      ],
+      "distanceFromLocationMeters": 1111.949266445366,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V08-poor-gps-accuracy": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 30,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "GPS_ACCURACY_POOR",
+          "source": "VALIDATION_ENGINE",
+          "gpsAccuracy": 250
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V09-gps-accuracy-exactly-100": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V10-gps-accuracy-100.5": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 30,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "GPS_ACCURACY_POOR",
+          "source": "VALIDATION_ENGINE",
+          "gpsAccuracy": 100.5
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V11-gps-accuracy-missing": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V12-missing-location": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 20,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "MISSING_LOCATION_DATA",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V13-missing-longitude-only": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 20,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "MISSING_LOCATION_DATA",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V14-no-work-location-anywhere": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_NOT_ASSIGNED",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V15-explicit-inactive-work-location": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 40,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INACTIVE",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V16-default-work-location-inactive": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 40,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INACTIVE",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V17-inactive-location-and-missing-gps": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 60,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INACTIVE",
+          "source": "VALIDATION_ENGINE"
+        },
+        {
+          "flag": "MISSING_LOCATION_DATA",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V18-mock-location-detected": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 90,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V19-mock-location-on-out": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 90,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V20-mocked-key-variant": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 90,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "isMocked": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V21-rooted-signal": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 90,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "rooted": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V22-mock-signal-string-true": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": "true"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V23-multiple-issues": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 190,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "OUTSIDE_GEOFENCE",
+          "source": "VALIDATION_ENGINE",
+          "distanceMeters": 1112,
+          "allowedRadiusMeters": 100
+        },
+        {
+          "flag": "GPS_ACCURACY_POOR",
+          "source": "VALIDATION_ENGINE",
+          "gpsAccuracy": 250
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 1111.949266445366,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V24-device-pending-approval": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_NOT_APPROVED",
+          "source": "VALIDATION_ENGINE",
+          "deviceStatus": "PENDING_APPROVAL"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V25-device-blocked": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_BLOCKED",
+          "source": "VALIDATION_ENGINE",
+          "deviceStatus": "BLOCKED"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V26-device-deactivated": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_DEACTIVATED",
+          "source": "VALIDATION_ENGINE",
+          "deviceStatus": "DEACTIVATED"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V27-device-of-other-employee": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_BELONGS_TO_DIFFERENT_EMPLOYEE_OR_MISSING",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V28-no-mobile-device": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_NOT_REGISTERED",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V29-employee-resigned": {
+      "validationStatus": "REJECTED_EMPLOYEE_INACTIVE",
+      "fraudScore": 100,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "EMPLOYEE_INACTIVE",
+          "source": "VALIDATION_ENGINE",
+          "employeeStatus": "RESIGNED"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V30-employee-on-leave": {
+      "validationStatus": "REJECTED_EMPLOYEE_INACTIVE",
+      "fraudScore": 100,
+      "fraudFlags": [
+        {
+          "flag": "EMPLOYEE_INACTIVE",
+          "source": "VALIDATION_ENGINE",
+          "employeeStatus": "ON_LEAVE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V31-device-only-employee-on-mobile": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 50,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "MOBILE_PUNCHING_NOT_ALLOWED",
+          "source": "VALIDATION_ENGINE",
+          "isDeviceOnly": true,
+          "isMobilePunchAllowed": true
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V32-mobile-not-allowed": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 50,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "MOBILE_PUNCHING_NOT_ALLOWED",
+          "source": "VALIDATION_ENGINE",
+          "isDeviceOnly": false,
+          "isMobilePunchAllowed": false
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V33-biometric-device-inactive": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "ATTENDANCE_DEVICE_INACTIVE_OR_MISSING",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V34-biometric-at-inactive-location": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 40,
+      "fraudFlags": [
+        {
+          "flag": "WORK_LOCATION_INACTIVE",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V35-device-source-without-device": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "UNRECOGNIZED_SOURCE_NO_DEVICE",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V36-web-source-routes-to-device-path": {
+      "validationStatus": "PENDING_HR_REVIEW",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "UNRECOGNIZED_SOURCE_NO_DEVICE",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V37-duplicate-mobile-60s": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V38-duplicate-window-inclusive-120s": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V39-not-duplicate-121s": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V40-earlier-out-does-not-duplicate-in": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V41-earlier-biometric-does-not-duplicate-mobile": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V42-earlier-rejected-still-duplicates": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V43-duplicate-biometric-event-window": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V44-duplicate-biometric-same-source-id-hours-apart": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V45-earliest-of-two-candidates-is-original": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-first"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-first",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V46-explicit-duplicate-link": {
+      "validationStatus": "REJECTED_DUPLICATE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DUPLICATE_PUNCH",
+          "source": "VALIDATION_ENGINE",
+          "duplicateOfPunchId": "p-earlier"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": "p-earlier",
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V47-employee-inactive-beats-duplicate": {
+      "validationStatus": "REJECTED_EMPLOYEE_INACTIVE",
+      "fraudScore": 100,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "EMPLOYEE_INACTIVE",
+          "source": "VALIDATION_ENGINE",
+          "employeeStatus": "TERMINATED"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V48-manual-with-reason": {
+      "validationStatus": "PENDING_MANAGER_APPROVAL",
+      "fraudScore": 0,
+      "fraudFlags": [],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V49-manual-without-reason": {
+      "validationStatus": "REJECTED_POLICY_VIOLATION",
+      "fraudScore": 50,
+      "fraudFlags": [
+        {
+          "flag": "MISSING_REASON",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V50-kuwait-boundary-before-midnight": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T20:59:59.999Z",
+      "clientReportedTime": null
+    },
+    "V51-kuwait-boundary-at-midnight": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-09",
+      "punchTimeSource": "2026-11-08T21:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V52-accepted-in-locked-period": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "LOCKED_PERIOD_LATE_PUNCH",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V53-rejected-in-locked-period": {
+      "validationStatus": "REJECTED_OUTSIDE_LOCATION",
+      "fraudScore": 70,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "OUTSIDE_GEOFENCE",
+          "source": "VALIDATION_ENGINE",
+          "distanceMeters": 1112,
+          "allowedRadiusMeters": 100
+        }
+      ],
+      "distanceFromLocationMeters": 1111.949266445366,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V54-biometric-in-locked-period": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "LOCKED_PERIOD_LATE_PUNCH",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "V55-preserved-intake-flags-stale-engine-flag-dropped": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": -1800
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "I01-trusted-server-timestamp": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:00:00.000Z"
+    },
+    "I02-phone-30-min-backward": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": -1800
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T05:30:00.000Z"
+    },
+    "I03-phone-30-min-forward": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": 1800
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:30:00.000Z"
+    },
+    "I04-fabricated-client-timestamp": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": 99288000
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2029-12-31T10:00:00.000Z"
+    },
+    "I05-no-client-timestamp": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": null
+    },
+    "I06-legacy-apk": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": -25200
+        },
+        {
+          "flag": "LEGACY_CLIENT_NO_REQUEST_ID",
+          "source": "INTAKE"
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-07T23:00:00.000Z"
+    },
+    "I07-skew-exactly-300s": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:05:00.000Z"
+    },
+    "I08-skew-301s": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": 301
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:05:01.000Z"
+    },
+    "I09-skew-half-second-rounding": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "CLIENT_CLOCK_SKEW",
+          "source": "INTAKE",
+          "skewSeconds": -1800
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T05:29:59.500Z"
+    },
+    "I10-mock-via-intake": {
+      "validationStatus": "REJECTED_FAKE_GPS",
+      "fraudScore": 90,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": true
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        },
+        {
+          "flag": "FAKE_GPS_SIGNAL",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:00:00.000Z"
+    },
+    "I11-kuwait-boundary-server-time-decides": {
+      "validationStatus": "ACCEPTED",
+      "fraudScore": 0,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "WORK_LOCATION_INFERRED_FROM_EMPLOYEE_DEFAULT",
+          "source": "VALIDATION_ENGINE",
+          "workLocationId": "loc-hq"
+        }
+      ],
+      "distanceFromLocationMeters": 11.11949266442996,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-09",
+      "punchTimeSource": "2026-11-08T21:00:00.000Z",
+      "clientReportedTime": "2026-11-08T20:55:00.000Z"
+    },
+    "I12-unknown-device-identifier": {
+      "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+      "fraudScore": 80,
+      "fraudFlags": [
+        {
+          "flag": "CLIENT_REPORTED_SIGNALS",
+          "signals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          }
+        },
+        {
+          "flag": "DEVICE_NOT_REGISTERED",
+          "source": "VALIDATION_ENGINE"
+        }
+      ],
+      "distanceFromLocationMeters": null,
+      "duplicateOfPunchId": null,
+      "workDate": "2026-11-08",
+      "punchTimeSource": "2026-11-08T06:00:00.000Z",
+      "clientReportedTime": "2026-11-08T06:00:00.000Z"
+    }
+  }
+}

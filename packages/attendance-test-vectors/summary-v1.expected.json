@@ -1,0 +1,911 @@
+{
+  "schemaVersion": "recafco-attendance-summary-expected/1",
+  "rulesetVersion": "nest-post-time01-2026-11-08",
+  "resultContractVersion": "attendance-daily-summary-result/1",
+  "recordedFrom": "NestJS (unmodified): AttendanceSummaryCalculatorService.calculateForEmployeeDate, via apps/api/test/parity/summary-parity.spec.ts in record mode",
+  "recordedAt": "2026-11-08",
+  "review": "Every outcome reviewed by hand against the audited calculator before freezing (RUST-03).",
+  "outcomes": {
+    "S01-normal-day": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p01-in-mob",
+      "officialOutPunchId": "p02-out-mob",
+      "officialInTime": "2026-11-08T03:55:00.000Z",
+      "officialOutTime": "2026-11-08T13:05:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 550,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 5,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p01-in-mob",
+        "p02-out-mob"
+      ]
+    },
+    "S02-early-in": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p03-in-mob",
+      "officialOutPunchId": "p04-out-mob",
+      "officialInTime": "2026-11-08T03:30:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 570,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p03-in-mob",
+        "p04-out-mob"
+      ]
+    },
+    "S03-late-in": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p05-in-mob",
+      "officialOutPunchId": "p06-out-mob",
+      "officialInTime": "2026-11-08T04:20:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 520,
+      "lateMinutes": 20,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p05-in-mob",
+        "p06-out-mob"
+      ]
+    },
+    "S04-early-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p07-in-mob",
+      "officialOutPunchId": "p08-out-mob",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T12:30:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 510,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 30,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p07-in-mob",
+        "p08-out-mob"
+      ]
+    },
+    "S05-late-out-overtime": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p09-in-mob",
+      "officialOutPunchId": "p10-out-mob",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:45:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 585,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 45,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p09-in-mob",
+        "p10-out-mob"
+      ]
+    },
+    "S06-exact-schedule": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p11-in-mob",
+      "officialOutPunchId": "p12-out-mob",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p11-in-mob",
+        "p12-out-mob"
+      ]
+    },
+    "S07-mobile-in-biometric-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p13-in-mob",
+      "officialOutPunchId": "p14-out-bio",
+      "officialInTime": "2026-11-08T03:58:00.000Z",
+      "officialOutTime": "2026-11-08T13:02:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 544,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 2,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p13-in-mob",
+        "p14-out-bio"
+      ]
+    },
+    "S08-biometric-in-mobile-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p15-in-bio",
+      "officialOutPunchId": "p16-out-mob",
+      "officialInTime": "2026-11-08T03:57:00.000Z",
+      "officialOutTime": "2026-11-08T13:03:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 546,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 3,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p15-in-bio",
+        "p16-out-mob"
+      ]
+    },
+    "S09-mobile-in-mobile-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p17-in-mob",
+      "officialOutPunchId": "p18-out-mob",
+      "officialInTime": "2026-11-08T04:01:00.000Z",
+      "officialOutTime": "2026-11-08T13:01:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 1,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 1,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p17-in-mob",
+        "p18-out-mob"
+      ]
+    },
+    "S10-biometric-in-biometric-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p19-in-bio",
+      "officialOutPunchId": "p20-out-bio",
+      "officialInTime": "2026-11-08T03:59:00.000Z",
+      "officialOutTime": "2026-11-08T13:04:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 545,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 4,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p19-in-bio",
+        "p20-out-bio"
+      ]
+    },
+    "S11-missing-in": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": null,
+      "officialOutPunchId": "p21-out-bio",
+      "officialInTime": null,
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": null,
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "MISSING_PUNCH",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p21-out-bio"
+      ]
+    },
+    "S12-missing-out": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p22-in-mob",
+      "officialOutPunchId": null,
+      "officialInTime": "2026-11-08T04:40:00.000Z",
+      "officialOutTime": null,
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "MISSING_PUNCH",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p22-in-mob"
+      ]
+    },
+    "S13-no-punches": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": null,
+      "officialOutPunchId": null,
+      "officialInTime": null,
+      "officialOutTime": null,
+      "officialInSourceType": null,
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "ABSENT",
+      "calculationVersion": 1,
+      "officialPunchIds": []
+    },
+    "S14-rejected-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p24-in-mob",
+      "officialOutPunchId": "p25-out-mob",
+      "officialInTime": "2026-11-08T04:05:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 535,
+      "lateMinutes": 5,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p24-in-mob",
+        "p25-out-mob"
+      ]
+    },
+    "S15-pending-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p26-in-bio",
+      "officialOutPunchId": "p27-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p26-in-bio",
+        "p27-out-bio"
+      ]
+    },
+    "S16-accepted-with-warning": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p29-in-manual_correction",
+      "officialOutPunchId": "p30-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MANUAL_CORRECTION",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p29-in-manual_correction",
+        "p30-out-bio"
+      ]
+    },
+    "S17-multiple-ins-earliest-wins": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p32-in-bio",
+      "officialOutPunchId": "p34-out-bio",
+      "officialInTime": "2026-11-08T03:58:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 542,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p32-in-bio",
+        "p34-out-bio"
+      ]
+    },
+    "S18-multiple-outs-latest-wins": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p35-in-bio",
+      "officialOutPunchId": "p37-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:20:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 560,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 20,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p35-in-bio",
+        "p37-out-bio"
+      ]
+    },
+    "S19-duplicate-excluded": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p40-in-mob",
+      "officialOutPunchId": "p41-out-mob",
+      "officialInTime": "2026-11-08T03:52:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 548,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p40-in-mob",
+        "p41-out-mob"
+      ]
+    },
+    "S20-no-shift": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p42-in-mob",
+      "officialOutPunchId": "p43-out-mob",
+      "officialInTime": "2026-11-08T06:00:00.000Z",
+      "officialOutTime": "2026-11-08T14:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 480,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p42-in-mob",
+        "p43-out-mob"
+      ]
+    },
+    "S21-kuwait-midnight-boundaries": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p45-in-bio",
+      "officialOutPunchId": "p46-out-mob",
+      "officialInTime": "2026-11-07T21:00:00.000Z",
+      "officialOutTime": "2026-11-08T20:59:59.999Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 1440,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 480,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p45-in-bio",
+        "p46-out-mob"
+      ]
+    },
+    "S22-overnight-shift-in-day": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p48-in-bio",
+      "officialOutPunchId": null,
+      "officialInTime": "2026-11-08T19:05:00.000Z",
+      "officialOutTime": null,
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "MISSING_PUNCH",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p48-in-bio"
+      ]
+    },
+    "S23-overnight-shift-next-day": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p52-in-bio",
+      "officialOutPunchId": "p51-out-bio",
+      "officialInTime": "2026-11-09T19:01:00.000Z",
+      "officialOutTime": "2026-11-09T03:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 1,
+      "earlyLeaveMinutes": 1440,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p51-out-bio",
+        "p52-in-bio"
+      ]
+    },
+    "S24-overnight-both-after-midnight": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p53-in-bio",
+      "officialOutPunchId": "p54-out-bio",
+      "officialInTime": "2026-11-07T21:10:00.000Z",
+      "officialOutTime": "2026-11-08T03:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 350,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 1440,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p53-in-bio",
+        "p54-out-bio"
+      ]
+    },
+    "S25-grace-not-applied": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p55-in-mob",
+      "officialOutPunchId": "p56-out-mob",
+      "officialInTime": "2026-11-08T04:10:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 530,
+      "lateMinutes": 10,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p55-in-mob",
+        "p56-out-mob"
+      ]
+    },
+    "S26-break-not-deducted": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p57-in-bio",
+      "officialOutPunchId": "p58-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p57-in-bio",
+        "p58-out-bio"
+      ]
+    },
+    "S27-overtime-exact-end": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p59-in-bio",
+      "officialOutPunchId": "p60-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p59-in-bio",
+        "p60-out-bio"
+      ]
+    },
+    "S28-overtime-29s": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p61-in-bio",
+      "officialOutPunchId": "p62-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:29.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p61-in-bio",
+        "p62-out-bio"
+      ]
+    },
+    "S29-overtime-30s": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p63-in-bio",
+      "officialOutPunchId": "p64-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:30.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 541,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 1,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p63-in-bio",
+        "p64-out-bio"
+      ]
+    },
+    "S30-late-30s-is-late": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p65-in-mob",
+      "officialOutPunchId": "p66-out-mob",
+      "officialInTime": "2026-11-08T04:00:30.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 1,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p65-in-mob",
+        "p66-out-mob"
+      ]
+    },
+    "S31-late-29s-is-present": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p67-in-mob",
+      "officialOutPunchId": "p68-out-mob",
+      "officialInTime": "2026-11-08T04:00:29.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p67-in-mob",
+        "p68-out-mob"
+      ]
+    },
+    "S32-worked-minutes-rounding": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p69-in-mob",
+      "officialOutPunchId": "p70-out-bio",
+      "officialInTime": "2026-11-08T04:00:20.000Z",
+      "officialOutTime": "2026-11-08T12:59:50.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p69-in-mob",
+        "p70-out-bio"
+      ]
+    },
+    "S33-mixed-sources-selection": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p72-in-bio",
+      "officialOutPunchId": "p73-out-mob",
+      "officialInTime": "2026-11-08T03:59:00.000Z",
+      "officialOutTime": "2026-11-08T13:10:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 551,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 10,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p72-in-bio",
+        "p73-out-mob"
+      ]
+    },
+    "S34-payroll-period-locked": {
+      "outcome": "REFUSED_LOCKED_PERIOD",
+      "officialInPunchId": null,
+      "officialOutPunchId": null,
+      "officialInTime": null,
+      "officialOutTime": null,
+      "officialInSourceType": null,
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": null,
+      "lateMinutes": null,
+      "earlyLeaveMinutes": null,
+      "overtimeMinutes": null,
+      "status": null,
+      "calculationVersion": null,
+      "officialPunchIds": [
+        "p75-in-mob"
+      ]
+    },
+    "S35-summary-locked-without-period": {
+      "outcome": "REFUSED_LOCKED_SUMMARY",
+      "officialInPunchId": null,
+      "officialOutPunchId": null,
+      "officialInTime": null,
+      "officialOutTime": null,
+      "officialInSourceType": null,
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": null,
+      "lateMinutes": null,
+      "earlyLeaveMinutes": null,
+      "overtimeMinutes": null,
+      "status": null,
+      "calculationVersion": null,
+      "officialPunchIds": [
+        "p77-in-mob"
+      ]
+    },
+    "S36-recalculation-increments-version": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p79-in-mob",
+      "officialOutPunchId": "p80-out-mob",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 4,
+      "officialPunchIds": [
+        "p79-in-mob",
+        "p80-out-mob"
+      ]
+    },
+    "S37-official-flags-reassigned": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p83-in-bio",
+      "officialOutPunchId": "p85-out-bio",
+      "officialInTime": "2026-11-08T04:03:00.000Z",
+      "officialOutTime": "2026-11-08T13:30:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 567,
+      "lateMinutes": 3,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 30,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p81-in-mob",
+        "p83-in-bio",
+        "p85-out-bio"
+      ]
+    },
+    "S38-out-before-in": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p87-in-mob",
+      "officialOutPunchId": "p86-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T03:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 600,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p86-out-bio",
+        "p87-in-mob"
+      ]
+    },
+    "S39-break-punches-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p88-in-bio",
+      "officialOutPunchId": "p91-out-bio",
+      "officialInTime": "2026-11-08T04:00:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 540,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p88-in-bio",
+        "p91-out-bio"
+      ]
+    },
+    "S40-latest-assignment-wins": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p92-in-mob",
+      "officialOutPunchId": "p93-out-mob",
+      "officialInTime": "2026-11-08T05:55:00.000Z",
+      "officialOutTime": "2026-11-08T15:10:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 555,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 10,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p92-in-mob",
+        "p93-out-mob"
+      ]
+    },
+    "S41-ended-assignment-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p94-in-mob",
+      "officialOutPunchId": "p95-out-mob",
+      "officialInTime": "2026-11-08T04:05:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 535,
+      "lateMinutes": 5,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p94-in-mob",
+        "p95-out-mob"
+      ]
+    },
+    "S42-assignment-ending-at-day-start-applies": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p96-in-mob",
+      "officialOutPunchId": "p97-out-mob",
+      "officialInTime": "2026-11-08T06:30:00.000Z",
+      "officialOutTime": "2026-11-08T15:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 510,
+      "lateMinutes": 30,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p96-in-mob",
+        "p97-out-mob"
+      ]
+    },
+    "S43-assignment-starting-next-day-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p98-in-mob",
+      "officialOutPunchId": "p99-out-mob",
+      "officialInTime": "2026-11-08T04:10:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 530,
+      "lateMinutes": 10,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p98-in-mob",
+        "p99-out-mob"
+      ]
+    },
+    "S44-inactive-shift-still-applies": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p100-in-mob",
+      "officialOutPunchId": "p101-out-mob",
+      "officialInTime": "2026-11-08T04:15:00.000Z",
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": "MOBILE",
+      "officialOutSourceType": "MOBILE",
+      "totalWorkedMinutes": 525,
+      "lateMinutes": 15,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p100-in-mob",
+        "p101-out-mob"
+      ]
+    },
+    "S45-implicit-overnight": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p102-in-bio",
+      "officialOutPunchId": "p103-out-bio",
+      "officialInTime": "2026-11-08T17:00:00.000Z",
+      "officialOutTime": "2026-11-08T20:00:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 180,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 300,
+      "overtimeMinutes": 0,
+      "status": "PRESENT",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p102-in-bio",
+        "p103-out-bio"
+      ]
+    },
+    "S46-other-day-punches-ignored": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": "p106-in-bio",
+      "officialOutPunchId": "p107-out-bio",
+      "officialInTime": "2026-11-08T04:02:00.000Z",
+      "officialOutTime": "2026-11-08T12:58:00.000Z",
+      "officialInSourceType": "BIOMETRIC_DEVICE",
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 536,
+      "lateMinutes": 2,
+      "earlyLeaveMinutes": 2,
+      "overtimeMinutes": 0,
+      "status": "LATE",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p106-in-bio",
+        "p107-out-bio"
+      ]
+    },
+    "S47-only-rejected-punches": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": null,
+      "officialOutPunchId": null,
+      "officialInTime": null,
+      "officialOutTime": null,
+      "officialInSourceType": null,
+      "officialOutSourceType": null,
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "ABSENT",
+      "calculationVersion": 1,
+      "officialPunchIds": []
+    },
+    "S48-pending-manager-approval-manual": {
+      "outcome": "CALCULATED",
+      "officialInPunchId": null,
+      "officialOutPunchId": "p111-out-bio",
+      "officialInTime": null,
+      "officialOutTime": "2026-11-08T13:00:00.000Z",
+      "officialInSourceType": null,
+      "officialOutSourceType": "BIOMETRIC_DEVICE",
+      "totalWorkedMinutes": 0,
+      "lateMinutes": 0,
+      "earlyLeaveMinutes": 0,
+      "overtimeMinutes": 0,
+      "status": "MISSING_PUNCH",
+      "calculationVersion": 1,
+      "officialPunchIds": [
+        "p111-out-bio"
+      ]
+    }
+  }
+}

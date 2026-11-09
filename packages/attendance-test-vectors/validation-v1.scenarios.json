@@ -1,0 +1,4351 @@
+{
+  "schemaVersion": "recafco-attendance-validation-scenarios/1",
+  "rulesetVersion": "nest-post-time01-2026-11-08",
+  "resultContractVersion": "attendance-validation-result/1",
+  "notes": "Synthetic data only. Inputs only — expected outcomes live in validation-v1.expected.json (recorded from NestJS, reviewed, frozen). earlierPunches are ordered ascending by (createdAt, id) and all precede the subject punch.",
+  "scenarios": [
+    {
+      "id": "V01-clean-mobile-in",
+      "title": "Clean approved mobile IN (app sends no workLocationId → inferred from employee default)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V02-clean-mobile-out",
+      "title": "Clean approved mobile OUT",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "OUT",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V03-clean-mobile-in-explicit-location",
+      "title": "Clean mobile IN with an explicit workLocationId (no inference flag)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ],
+          "workLocationId": "loc-hq"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V04-biometric-in",
+      "title": "Valid biometric IN (no GPS required)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V05-biometric-out",
+      "title": "Valid biometric OUT",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "OUT",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1002"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V06-face-device-in",
+      "title": "FACE_DEVICE source takes the physical-device path",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "FACE_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V07-outside-geofence",
+      "title": "Mobile IN ~1.1 km outside a 100 m geofence",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.3859,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V08-poor-gps-accuracy",
+      "title": "Mobile IN with 250 m GPS accuracy",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 250,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V09-gps-accuracy-exactly-100",
+      "title": "GPS accuracy exactly 100 m is acceptable (rule is > 100)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 100,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V10-gps-accuracy-100.5",
+      "title": "GPS accuracy 100.5 m goes to review",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 100.5,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V11-gps-accuracy-missing",
+      "title": "No gpsAccuracy value: accuracy rule not applied",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": null,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V12-missing-location",
+      "title": "Mobile IN without latitude/longitude",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": null,
+          "longitude": null,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V13-missing-longitude-only",
+      "title": "Latitude present, longitude missing",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": null,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V14-no-work-location-anywhere",
+      "title": "Neither punch nor employee has a work location",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": null
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V15-explicit-inactive-work-location",
+      "title": "Punch names an inactive work location",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ],
+          "workLocationId": "loc-closed"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V16-default-work-location-inactive",
+      "title": "Employee default work location is inactive (inferred)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-closed"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V17-inactive-location-and-missing-gps",
+      "title": "Inactive location + no coordinates: both conditions accumulate",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": null,
+          "longitude": null,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ],
+          "workLocationId": "loc-closed"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V18-mock-location-detected",
+      "title": "App reports mockLocationDetected=true",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": true
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V19-mock-location-on-out",
+      "title": "Mock location on OUT is rejected independently",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "OUT",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": true
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V20-mocked-key-variant",
+      "title": "expo-location style `isMocked: true`",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "isMocked": true
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V21-rooted-signal",
+      "title": "Rooted device signal",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "rooted": true
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V22-mock-signal-string-true",
+      "title": "Existing behaviour: \"true\" as a STRING is not a signal (strict boolean)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": "true"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V23-multiple-issues",
+      "title": "Outside + poor accuracy + mock: most severe wins, score and flags accumulate",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.3859,
+          "longitude": 47.9774,
+          "gpsAccuracy": 250,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": true
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V24-device-pending-approval",
+      "title": "Mobile device registered but not yet approved",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "PENDING_APPROVAL",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V25-device-blocked",
+      "title": "Blocked mobile device",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "BLOCKED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V26-device-deactivated",
+      "title": "Deactivated mobile device",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "DEACTIVATED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V27-device-of-other-employee",
+      "title": "Approved device belonging to another employee",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-2",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V28-no-mobile-device",
+      "title": "Unknown device identifier (no device row linked)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": null,
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V29-employee-resigned",
+      "title": "Inactive (RESIGNED) employee",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "RESIGNED",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V30-employee-on-leave",
+      "title": "ON_LEAVE is also not ACTIVE",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ON_LEAVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V31-device-only-employee-on-mobile",
+      "title": "isDeviceOnly employee punching from mobile",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": true,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V32-mobile-not-allowed",
+      "title": "isMobilePunchAllowed=false",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": false,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V33-biometric-device-inactive",
+      "title": "Biometric punch from an inactive device",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": false,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V34-biometric-at-inactive-location",
+      "title": "Biometric device installed at an inactive work location",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-closed"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V35-device-source-without-device",
+      "title": "BIOMETRIC_DEVICE punch with no attendanceDeviceId",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": null,
+          "sourceId": null
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V36-web-source-routes-to-device-path",
+      "title": "Existing behaviour: WEB source is validated by the device path",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "WEB",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": null,
+          "sourceId": null
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V37-duplicate-mobile-60s",
+      "title": "Same mobile IN 60 s after an earlier one",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:00.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V38-duplicate-window-inclusive-120s",
+      "title": "Earlier punch exactly 2 min before: inside the inclusive window",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:58:00.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V39-not-duplicate-121s",
+      "title": "Earlier punch 121 s before: outside the window",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:57:59.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V40-earlier-out-does-not-duplicate-in",
+      "title": "Different punchType never duplicates",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:30.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V41-earlier-biometric-does-not-duplicate-mobile",
+      "title": "Different sourceType never duplicates (mixed sources allowed)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "punchTimeSource": "2026-11-08T05:59:30.000Z",
+            "sourceId": "x"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V42-earlier-rejected-still-duplicates",
+      "title": "Existing behaviour: an earlier REJECTED punch still makes this a duplicate",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:50.000Z",
+            "validationStatus": "REJECTED_OUTSIDE_LOCATION"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V43-duplicate-biometric-event-window",
+      "title": "Biometric IN 30 s after another biometric IN (different log ids)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "punchTimeSource": "2026-11-08T05:59:30.000Z",
+            "sourceId": "bio-log-0999"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V44-duplicate-biometric-same-source-id-hours-apart",
+      "title": "Existing behaviour: same sourceId hours apart is a duplicate (sourceId match ignores time)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-2",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "punchTimeSource": "2026-11-08T02:00:00.000Z",
+            "sourceId": "bio-log-1001"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V45-earliest-of-two-candidates-is-original",
+      "title": "Two qualifying earlier punches: the earliest-created is the original",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-first",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:10.000Z"
+          },
+          {
+            "id": "p-second",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:40.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V46-explicit-duplicate-link",
+      "title": "Row already linked via duplicateOfPunchId (re-validation path)",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ],
+          "duplicateOfPunchId": "p-earlier"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T03:00:00.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V47-employee-inactive-beats-duplicate",
+      "title": "Inactive employee is decided before duplicate detection",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "TERMINATED",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [
+          {
+            "id": "p-earlier",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "punchTimeSource": "2026-11-08T05:59:00.000Z"
+          }
+        ],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V48-manual-with-reason",
+      "title": "Manual punch with a reason requires manager approval",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MANUAL_CORRECTION",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "rawPayload": {
+            "reason": "Forgot to punch at gate"
+          }
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V49-manual-without-reason",
+      "title": "Manual punch with a blank reason",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MANUAL_CORRECTION",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "rawPayload": {
+            "reason": "   "
+          }
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V50-kuwait-boundary-before-midnight",
+      "title": "Official instant 23:59:59.999 Kuwait → same work date",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T20:59:59.999Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V51-kuwait-boundary-at-midnight",
+      "title": "Official instant 00:00:00.000 Kuwait → next work date",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T21:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "V52-accepted-in-locked-period",
+      "title": "Accepted punch on a locked work date gets LOCKED_PERIOD_LATE_PUNCH",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": [
+          "2026-11-08"
+        ]
+      }
+    },
+    {
+      "id": "V53-rejected-in-locked-period",
+      "title": "Rejected punch on a locked date gets no lock flag",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.3859,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false,
+                "locationPermissionStatus": "granted"
+              }
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": [
+          "2026-11-08"
+        ]
+      }
+    },
+    {
+      "id": "V54-biometric-in-locked-period",
+      "title": "Late-synced biometric event into a locked date",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "BIOMETRIC_DEVICE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "attendanceDeviceId": "bio-1",
+          "sourceId": "bio-log-1001"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": [
+          "2026-11-08"
+        ]
+      }
+    },
+    {
+      "id": "V55-preserved-intake-flags-stale-engine-flag-dropped",
+      "title": "Intake flags kept in order; a stale engine flag from a previous run is dropped",
+      "kind": "validation",
+      "input": {
+        "punch": {
+          "id": "p-subject",
+          "punchType": "IN",
+          "sourceType": "MOBILE",
+          "punchTimeSource": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "mobileDeviceId": "mdev-1",
+          "fraudFlags": [
+            {
+              "flag": "CLIENT_REPORTED_SIGNALS",
+              "signals": {
+                "mockLocationDetected": false
+              }
+            },
+            {
+              "source": "INTAKE",
+              "flag": "CLIENT_CLOCK_SKEW",
+              "skewSeconds": -1800
+            },
+            {
+              "source": "VALIDATION_ENGINE",
+              "flag": "OUTSIDE_GEOFENCE",
+              "distanceMeters": 5000,
+              "allowedRadiusMeters": 100
+            }
+          ]
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I01-trusted-server-timestamp",
+      "title": "Phone clock agrees with server: official = server receipt, no skew flag",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I02-phone-30-min-backward",
+      "title": "Phone clock 30 min behind",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T05:30:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I03-phone-30-min-forward",
+      "title": "Phone clock 30 min ahead",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:30:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I04-fabricated-client-timestamp",
+      "title": "Fabricated far-future timestamp with +14:00 offset",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2030-01-01T00:00:00+14:00",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I05-no-client-timestamp",
+      "title": "No client clock sent",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I06-legacy-apk",
+      "title": "Pre-TIME-01 APK: legacy punchTimeSource, no clientRequestId",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0",
+          "punchTimeSource": "2026-11-07T23:00:00.000Z"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I07-skew-exactly-300s",
+      "title": "Skew of exactly +300 s is not flagged (rule is > 300)",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:05:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I08-skew-301s",
+      "title": "Skew of +301 s is flagged",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:05:01.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I09-skew-half-second-rounding",
+      "title": "JS Math.round semantics: -1800.5 s rounds to -1800",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T05:29:59.500Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I10-mock-via-intake",
+      "title": "mockLocationDetected=true through the real intake path",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": true
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I11-kuwait-boundary-server-time-decides",
+      "title": "Server receipt at Kuwait midnight; phone claims previous day",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T21:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T20:55:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:FIXTURE-0001",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    },
+    {
+      "id": "I12-unknown-device-identifier",
+      "title": "Device identifier not registered",
+      "kind": "mobileIntake",
+      "input": {
+        "punchId": "p-subject",
+        "serverReceivedAt": "2026-11-08T06:00:00.000Z",
+        "request": {
+          "punchType": "IN",
+          "clientRequestId": "0f8e1c2a-3b4d-4e5f-8a6b-7c8d9e0f1a2b",
+          "clientReportedTime": "2026-11-08T06:00:00.000Z",
+          "latitude": 29.376,
+          "longitude": 47.9774,
+          "gpsAccuracy": 12,
+          "deviceIdentifier": "android-id:UNKNOWN",
+          "fraudSignals": {
+            "mockLocationDetected": false,
+            "locationPermissionStatus": "granted"
+          },
+          "appVersion": "1.0.0"
+        },
+        "employee": {
+          "id": "emp-1",
+          "status": "ACTIVE",
+          "isMobilePunchAllowed": true,
+          "isDeviceOnly": false,
+          "workLocationId": "loc-hq"
+        },
+        "workLocations": {
+          "loc-hq": {
+            "latitude": 29.3759,
+            "longitude": 47.9774,
+            "geofenceRadiusMeters": 100,
+            "isActive": true
+          },
+          "loc-closed": {
+            "latitude": 29.3,
+            "longitude": 47.9,
+            "geofenceRadiusMeters": 100,
+            "isActive": false
+          }
+        },
+        "mobileDevices": {
+          "mdev-1": {
+            "employeeId": "emp-1",
+            "status": "APPROVED",
+            "deviceIdentifier": "android-id:FIXTURE-0001"
+          }
+        },
+        "attendanceDevices": {
+          "bio-1": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          },
+          "bio-2": {
+            "isActive": true,
+            "workLocationId": "loc-hq"
+          }
+        },
+        "earlierPunches": [],
+        "lockedWorkDates": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,2042 @@
+{
+  "schemaVersion": "recafco-attendance-summary-scenarios/1",
+  "rulesetVersion": "nest-post-time01-2026-11-08",
+  "resultContractVersion": "attendance-daily-summary-result/1",
+  "notes": "Synthetic data only. Inputs only — expected outcomes live in summary-v1.expected.json (recorded from NestJS AttendanceSummaryCalculatorService.calculateForEmployeeDate, reviewed, frozen). Times are UTC; titles use Asia/Kuwait local time.",
+  "scenarios": [
+    {
+      "id": "S01-normal-day",
+      "title": "Normal day: IN 06:55, OUT 16:05 (mobile)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p01-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:55:00.000Z"
+          },
+          {
+            "id": "p02-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:05:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S02-early-in",
+      "title": "Early IN 06:30 is not overtime; late = 0",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p03-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:30:00.000Z"
+          },
+          {
+            "id": "p04-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S03-late-in",
+      "title": "Late IN 07:20 → LATE, 20 late minutes",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p05-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:20:00.000Z"
+          },
+          {
+            "id": "p06-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S04-early-out",
+      "title": "Early OUT 15:30 → 30 early-leave minutes; status still PRESENT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p07-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p08-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T12:30:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S05-late-out-overtime",
+      "title": "OUT 16:45 → 45 overtime minutes (no approval concept)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p09-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p10-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:45:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S06-exact-schedule",
+      "title": "Exactly 07:00:00 / 16:00:00",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p11-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p12-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S07-mobile-in-biometric-out",
+      "title": "Mobile IN + biometric OUT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p13-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:58:00.000Z"
+          },
+          {
+            "id": "p14-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:02:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S08-biometric-in-mobile-out",
+      "title": "Biometric IN + mobile OUT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p15-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:57:00.000Z"
+          },
+          {
+            "id": "p16-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:03:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S09-mobile-in-mobile-out",
+      "title": "Mobile IN + mobile OUT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p17-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:01:00.000Z"
+          },
+          {
+            "id": "p18-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:01:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S10-biometric-in-biometric-out",
+      "title": "Biometric IN + biometric OUT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p19-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:59:00.000Z"
+          },
+          {
+            "id": "p20-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:04:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S11-missing-in",
+      "title": "Only an OUT → MISSING_PUNCH, all minutes 0",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p21-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S12-missing-out",
+      "title": "Only a late IN → MISSING_PUNCH; late minutes are NOT computed without an OUT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p22-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:40:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S13-no-punches",
+      "title": "No punches at all → ABSENT row (when the calculator is invoked)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S14-rejected-ignored",
+      "title": "Rejected earlier IN ignored; accepted IN used",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p23-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "REJECTED_OUTSIDE_LOCATION",
+            "punchTimeSource": "2026-11-08T03:30:00.000Z"
+          },
+          {
+            "id": "p24-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:05:00.000Z"
+          },
+          {
+            "id": "p25-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S15-pending-ignored",
+      "title": "PENDING_HR_REVIEW later OUT ignored",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p26-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p27-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          },
+          {
+            "id": "p28-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "PENDING_HR_REVIEW",
+            "punchTimeSource": "2026-11-08T14:30:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S16-accepted-with-warning",
+      "title": "ACCEPTED_WITH_WARNING (approved correction) counts as eligible",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p29-in-manual_correction",
+            "punchType": "IN",
+            "sourceType": "MANUAL_CORRECTION",
+            "validationStatus": "ACCEPTED_WITH_WARNING",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p30-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S17-multiple-ins-earliest-wins",
+      "title": "Three accepted INs → earliest is official",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p31-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:10:00.000Z"
+          },
+          {
+            "id": "p32-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:58:00.000Z"
+          },
+          {
+            "id": "p33-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:30:00.000Z"
+          },
+          {
+            "id": "p34-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S18-multiple-outs-latest-wins",
+      "title": "Three accepted OUTs → latest is official",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p35-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p36-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T12:00:00.000Z"
+          },
+          {
+            "id": "p37-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:20:00.000Z"
+          },
+          {
+            "id": "p38-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:05:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S19-duplicate-excluded",
+      "title": "REJECTED_DUPLICATE IN ignored even though earlier",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p39-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "REJECTED_DUPLICATE",
+            "punchTimeSource": "2026-11-08T03:50:00.000Z"
+          },
+          {
+            "id": "p40-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:52:00.000Z"
+          },
+          {
+            "id": "p41-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S20-no-shift",
+      "title": "No shift assignment → only total worked minutes; no late even at 09:00",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p42-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T06:00:00.000Z"
+          },
+          {
+            "id": "p43-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T14:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": []
+      }
+    },
+    {
+      "id": "S21-kuwait-midnight-boundaries",
+      "title": "Day window is [00:00, 24:00) Kuwait: both edges included/excluded correctly",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p44-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-07T20:59:59.999Z"
+          },
+          {
+            "id": "p45-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-07T21:00:00.000Z"
+          },
+          {
+            "id": "p46-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T20:59:59.999Z"
+          },
+          {
+            "id": "p47-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T21:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S22-overnight-shift-in-day",
+      "title": "Night shift 22:00–06:00: IN 22:05 on 8 Nov, OUT 06:00 on 9 Nov → 8 Nov has no OUT (calendar-day grouping)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p48-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T19:05:00.000Z"
+          },
+          {
+            "id": "p49-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-09T03:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-night",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-night",
+              "startTimeMinutes": 1320,
+              "endTimeMinutes": 360,
+              "isOvernight": true,
+              "gracePeriodMinutes": 10,
+              "breakMinutes": 30,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S23-overnight-shift-next-day",
+      "title": "Same night shift, calculating 9 Nov: OUT 06:00 and next IN 22:01 → official IN 22:01, OUT 06:00 (OUT before IN)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-09",
+        "punches": [
+          {
+            "id": "p50-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T19:05:00.000Z"
+          },
+          {
+            "id": "p51-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-09T03:00:00.000Z"
+          },
+          {
+            "id": "p52-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-09T19:01:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-night",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-night",
+              "startTimeMinutes": 1320,
+              "endTimeMinutes": 360,
+              "isOvernight": true,
+              "gracePeriodMinutes": 10,
+              "breakMinutes": 30,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S24-overnight-both-after-midnight",
+      "title": "Night shift, IN 00:10 and OUT 06:00 same Kuwait day → shift end is next day, 1440 early-leave minutes",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p53-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-07T21:10:00.000Z"
+          },
+          {
+            "id": "p54-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-night",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-night",
+              "startTimeMinutes": 1320,
+              "endTimeMinutes": 360,
+              "isOvernight": true,
+              "gracePeriodMinutes": 10,
+              "breakMinutes": 30,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S25-grace-not-applied",
+      "title": "Grace 15 min stored; IN 07:10 still LATE 10",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p55-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:10:00.000Z"
+          },
+          {
+            "id": "p56-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S26-break-not-deducted",
+      "title": "Break 60 min stored; 07:00–16:00 still 540 worked minutes",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p57-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p58-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S27-overtime-exact-end",
+      "title": "OUT exactly 16:00:00 → overtime 0, early 0",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p59-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p60-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S28-overtime-29s",
+      "title": "OUT 16:00:29 → rounds to 0 overtime",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p61-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p62-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:29.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S29-overtime-30s",
+      "title": "OUT 16:00:30 → rounds to 1 overtime minute",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p63-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p64-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:30.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S30-late-30s-is-late",
+      "title": "IN 07:00:30 → 1 late minute → status LATE",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p65-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:30.000Z"
+          },
+          {
+            "id": "p66-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S31-late-29s-is-present",
+      "title": "IN 07:00:29 → 0 late minutes → PRESENT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p67-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:29.000Z"
+          },
+          {
+            "id": "p68-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S32-worked-minutes-rounding",
+      "title": "IN 07:00:20, OUT 15:59:50 → 539.5 min rounds to 540",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p69-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:20.000Z"
+          },
+          {
+            "id": "p70-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T12:59:50.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S33-mixed-sources-selection",
+      "title": "Mixed: bio IN 06:59 beats mobile IN 07:02; mobile OUT 16:10 beats bio OUT 16:03",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p71-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:02:00.000Z"
+          },
+          {
+            "id": "p72-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:59:00.000Z"
+          },
+          {
+            "id": "p73-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:10:00.000Z"
+          },
+          {
+            "id": "p74-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:03:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S34-payroll-period-locked",
+      "title": "Locked payroll period → refused; official flags untouched",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p75-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z",
+            "isOfficial": true
+          },
+          {
+            "id": "p76-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:30:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ],
+        "periodLocked": true,
+        "existingSummary": {
+          "calculationVersion": 2,
+          "locked": true
+        }
+      }
+    },
+    {
+      "id": "S35-summary-locked-without-period",
+      "title": "Summary row lockedAt set (period not locked) → refused",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p77-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z",
+            "isOfficial": true
+          },
+          {
+            "id": "p78-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ],
+        "existingSummary": {
+          "calculationVersion": 1,
+          "locked": true
+        }
+      }
+    },
+    {
+      "id": "S36-recalculation-increments-version",
+      "title": "Existing summary version 3 → 4",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p79-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p80-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ],
+        "existingSummary": {
+          "calculationVersion": 3,
+          "locked": false
+        }
+      }
+    },
+    {
+      "id": "S37-official-flags-reassigned",
+      "title": "Stale official flag on a now-rejected punch is cleared; yesterday official punch untouched",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p81-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-07T04:00:00.000Z",
+            "isOfficial": true
+          },
+          {
+            "id": "p82-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "REJECTED_FAKE_GPS",
+            "punchTimeSource": "2026-11-08T03:40:00.000Z",
+            "isOfficial": true
+          },
+          {
+            "id": "p83-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:03:00.000Z"
+          },
+          {
+            "id": "p84-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z",
+            "isOfficial": true
+          },
+          {
+            "id": "p85-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:30:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S38-out-before-in",
+      "title": "Existing behaviour: OUT 06:00 before IN 07:00 → 0 worked minutes yet PRESENT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p86-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T03:00:00.000Z"
+          },
+          {
+            "id": "p87-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S39-break-punches-ignored",
+      "title": "BREAK_START/BREAK_END do not affect anything",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p88-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p89-break_start-bio",
+            "punchType": "BREAK_START",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T09:00:00.000Z"
+          },
+          {
+            "id": "p90-break_end-bio",
+            "punchType": "BREAK_END",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T10:00:00.000Z"
+          },
+          {
+            "id": "p91-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S40-latest-assignment-wins",
+      "title": "Two applicable assignments → latest effectiveFrom (09:00–18:00 shift) applies",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p92-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T05:55:00.000Z"
+          },
+          {
+            "id": "p93-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T15:10:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          },
+          {
+            "id": "sa-shift-late",
+            "effectiveFrom": "2026-10-31T21:00:00.000Z",
+            "shift": {
+              "id": "shift-late",
+              "startTimeMinutes": 540,
+              "endTimeMinutes": 1080,
+              "isOvernight": false,
+              "gracePeriodMinutes": 0,
+              "breakMinutes": 0,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S41-ended-assignment-ignored",
+      "title": "Newer assignment ended before the day starts → older applies",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p94-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:05:00.000Z"
+          },
+          {
+            "id": "p95-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          },
+          {
+            "id": "sa-shift-late",
+            "effectiveFrom": "2026-10-31T21:00:00.000Z",
+            "effectiveTo": "2026-11-07T20:59:00.000Z",
+            "shift": {
+              "id": "shift-late",
+              "startTimeMinutes": 540,
+              "endTimeMinutes": 1080,
+              "isOvernight": false,
+              "gracePeriodMinutes": 0,
+              "breakMinutes": 0,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S42-assignment-ending-at-day-start-applies",
+      "title": "effectiveTo exactly at Kuwait day start still applies (>=)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p96-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T06:30:00.000Z"
+          },
+          {
+            "id": "p97-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T15:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          },
+          {
+            "id": "sa-shift-late",
+            "effectiveFrom": "2026-10-31T21:00:00.000Z",
+            "effectiveTo": "2026-11-07T21:00:00.000Z",
+            "shift": {
+              "id": "shift-late",
+              "startTimeMinutes": 540,
+              "endTimeMinutes": 1080,
+              "isOvernight": false,
+              "gracePeriodMinutes": 0,
+              "breakMinutes": 0,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S43-assignment-starting-next-day-ignored",
+      "title": "effectiveFrom exactly at Kuwait day end does not apply (<)",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p98-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:10:00.000Z"
+          },
+          {
+            "id": "p99-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          },
+          {
+            "id": "sa-shift-late",
+            "effectiveFrom": "2026-11-08T21:00:00.000Z",
+            "shift": {
+              "id": "shift-late",
+              "startTimeMinutes": 540,
+              "endTimeMinutes": 1080,
+              "isOvernight": false,
+              "gracePeriodMinutes": 0,
+              "breakMinutes": 0,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S44-inactive-shift-still-applies",
+      "title": "Existing behaviour: Shift.isActive=false is not consulted",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p100-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:15:00.000Z"
+          },
+          {
+            "id": "p101-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-retired",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-retired",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": false
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S45-implicit-overnight",
+      "title": "End <= start without isOvernight (20:00–04:00) is treated as overnight",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p102-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T17:00:00.000Z"
+          },
+          {
+            "id": "p103-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T20:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-evening",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-evening",
+              "startTimeMinutes": 1200,
+              "endTimeMinutes": 240,
+              "isOvernight": false,
+              "gracePeriodMinutes": 0,
+              "breakMinutes": 0,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S46-other-day-punches-ignored",
+      "title": "Punches on 7 and 9 Nov (Kuwait) never affect 8 Nov",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p104-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-07T04:00:00.000Z"
+          },
+          {
+            "id": "p105-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-09T13:00:00.000Z"
+          },
+          {
+            "id": "p106-in-bio",
+            "punchType": "IN",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T04:02:00.000Z"
+          },
+          {
+            "id": "p107-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T12:58:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S47-only-rejected-punches",
+      "title": "Every punch rejected → ABSENT",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p108-in-mob",
+            "punchType": "IN",
+            "sourceType": "MOBILE",
+            "validationStatus": "REJECTED_OUTSIDE_LOCATION",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p109-out-mob",
+            "punchType": "OUT",
+            "sourceType": "MOBILE",
+            "validationStatus": "REJECTED_UNREGISTERED_DEVICE",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "S48-pending-manager-approval-manual",
+      "title": "Manual punch PENDING_MANAGER_APPROVAL ignored → MISSING_PUNCH",
+      "input": {
+        "employeeId": "emp-1",
+        "workDate": "2026-11-08",
+        "punches": [
+          {
+            "id": "p110-in-manual_correction",
+            "punchType": "IN",
+            "sourceType": "MANUAL_CORRECTION",
+            "validationStatus": "PENDING_MANAGER_APPROVAL",
+            "punchTimeSource": "2026-11-08T04:00:00.000Z"
+          },
+          {
+            "id": "p111-out-bio",
+            "punchType": "OUT",
+            "sourceType": "BIOMETRIC_DEVICE",
+            "validationStatus": "ACCEPTED",
+            "punchTimeSource": "2026-11-08T13:00:00.000Z"
+          }
+        ],
+        "shiftAssignments": [
+          {
+            "id": "sa-shift-day",
+            "effectiveFrom": "2026-01-01T00:00:00.000Z",
+            "shift": {
+              "id": "shift-day",
+              "startTimeMinutes": 420,
+              "endTimeMinutes": 960,
+              "isOvernight": false,
+              "gracePeriodMinutes": 15,
+              "breakMinutes": 60,
+              "isActive": true
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

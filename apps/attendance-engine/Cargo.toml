@@ -1,0 +1,46 @@
+[package]
+name = "recafco-attendance-engine"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+description = "RECAFCO HRMS attendance-processing engine (RUST-01 foundation: health/readiness only, read-only database access)."
+publish = false
+license = "UNLICENSED"
+
+[lib]
+name = "recafco_attendance_engine"
+path = "src/lib.rs"
+
+[[bin]]
+name = "recafco-attendance-engine"
+path = "src/main.rs"
+
+[dependencies]
+axum = "0.8.9"
+chrono = { version = "0.4.45", default-features = false, features = ["std", "serde", "alloc"] }
+dotenvy = "0.15.7"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+# No TLS feature on purpose for RUST-01: the engine only talks to a local/internal PostgreSQL.
+# No `macros` feature: compile-time-checked queries need `cargo sqlx prepare` offline data first
+# (see README "Future SQL queries").
+sqlx = { version = "0.9.0", default-features = false, features = ["runtime-tokio", "postgres"] }
+thiserror = "2.0.21"
+tokio = { version = "1.54.1", features = ["rt-multi-thread", "macros", "net", "signal", "time"] }
+tower-http = { version = "0.7.1", features = ["trace", "timeout", "catch-panic"] }
+tracing = "0.1.44"
+tracing-subscriber = { version = "0.3.23", features = ["json", "env-filter", "fmt"] }
+
+[dev-dependencies]
+http-body-util = "0.1.5"
+tokio = { version = "1.54.1", features = ["io-util"] }
+tower = { version = "0.5.3", features = ["util"] }
+
+[lints.rust]
+unsafe_code = "forbid"
+
+[profile.release]
+# Payroll-adjacent service: keep panics observable (logged + 500) rather than aborting the process.
+panic = "unwind"
+lto = "thin"
+codegen-units = 1

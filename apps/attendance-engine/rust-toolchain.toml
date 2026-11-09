@@ -1,0 +1,6 @@
+# Pinned so every developer/CI machine builds with the same compiler that RUST-01 was verified on.
+# Bump deliberately (and re-run fmt/clippy/test/build) rather than floating on "stable".
+[toolchain]
+channel = "1.99.1"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
