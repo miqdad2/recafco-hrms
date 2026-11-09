@@ -18,3 +18,18 @@ export const colors = {
   info: '#2563eb',
   locked: '#334155',
 } as const;
+
+/**
+ * RECAFCO brand surface used only by the launch experience (native splash background in
+ * app.json + the React Native welcome screen). Deliberately separate from `colors` above —
+ * the rest of the app keeps its light theme. `red` is sampled from the official logo artwork.
+ * Keep `charcoal` in sync with the expo-splash-screen `backgroundColor` in app.json so the
+ * native → React Native handoff has no color jump.
+ */
+export const brand = {
+  charcoal: '#191919',
+  charcoalRaised: '#202020',
+  red: '#EA262A',
+  white: '#ffffff',
+  textOnDarkMuted: '#b8b8b8',
+} as const;

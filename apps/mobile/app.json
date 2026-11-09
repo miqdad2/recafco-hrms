@@ -31,10 +31,14 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/recafco-logo-transparent.png",
-          "imageWidth": 420,
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 288,
           "resizeMode": "contain",
-          "backgroundColor": "#FFFFFF"
+          "backgroundColor": "#191919",
+          "dark": {
+            "image": "./assets/splash-icon.png",
+            "backgroundColor": "#191919"
+          }
         }
       ],
       [

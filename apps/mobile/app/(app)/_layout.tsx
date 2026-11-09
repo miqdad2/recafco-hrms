@@ -3,19 +3,29 @@ import { Redirect, Tabs } from 'expo-router';
 import * as React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { AppHeader } from '../../src/components/app-header';
-import { BrandedLoadingScreen } from '../../src/components/branded-loading-screen';
 import { CreateActionSheet } from '../../src/components/create-action-sheet';
+import { LaunchWelcomeScreen } from '../../src/components/launch-welcome-screen';
 import { SideMenu } from '../../src/components/side-menu';
 import { useAuth } from '../../src/lib/auth/auth-context';
 import { colors } from '../../src/lib/theme';
+
+// The launch welcome plays once per app process (cold start). Later remounts of this layout —
+// e.g. after logout → login — go straight to the tabs without replaying it.
+let launchWelcomePlayed = false;
 
 export default function AppLayout() {
   const { isLoading, isAuthenticated } = useAuth();
   const [menuOpen, setMenuOpen] = React.useState(false);
   const [createOpen, setCreateOpen] = React.useState(false);
+  const [welcomeDone, setWelcomeDone] = React.useState(launchWelcomePlayed);
+  const finishWelcome = React.useCallback(() => {
+    launchWelcomePlayed = true;
+    setWelcomeDone(true);
+  }, []);
 
-  if (isLoading) {
-    return <BrandedLoadingScreen />;
+  // Protected screens never render until auth restore has finished (`isLoading` false).
+  if (isLoading || !welcomeDone) {
+    return <LaunchWelcomeScreen ready={!isLoading} onFinish={finishWelcome} />;
   }
 
   if (!isAuthenticated) {

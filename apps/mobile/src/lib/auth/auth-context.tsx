@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useRouter } from 'expo-router';
 import {
+  ApiError,
   getCurrentUser,
   login as apiLogin,
   logout as apiLogout,
@@ -19,6 +20,27 @@ interface AuthContextValue {
 
 const AuthContext = React.createContext<AuthContextValue | undefined>(undefined);
 
+/** Upper bound on launch-time session restore so the welcome screen can never spin forever. */
+const SESSION_RESTORE_TIMEOUT_MS = 15_000;
+
+class SessionRestoreTimeoutError extends Error {}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new SessionRestoreTimeoutError('Session restore timed out')), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = React.useState<CurrentUserProfile | null>(null);
@@ -33,19 +55,31 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function restoreSession() {
-      const accessToken = await getStoredAccessToken();
+      let accessToken: string | null = null;
+      try {
+        accessToken = await getStoredAccessToken();
+      } catch {
+        // SecureStore unreadable (e.g. keystore error) — treat as signed out so launch never hangs.
+        accessToken = null;
+      }
       if (!accessToken) {
-        setIsLoading(false);
+        if (!cancelled) {
+          setIsLoading(false);
+        }
         return;
       }
       try {
-        const profile = await getCurrentUser(accessToken);
+        const profile = await withTimeout(getCurrentUser(accessToken), SESSION_RESTORE_TIMEOUT_MS);
         if (!cancelled) {
           setUser(profile);
         }
-      } catch {
-        // Invalid/expired token — clear the stale session rather than leave the UI in a broken state.
-        if (!cancelled) {
+      } catch (error) {
+        // Server unreachable/slow: stop the launch screen and fall through to /login, but keep the
+        // stored tokens so the next launch can retry. Any other failure (invalid/expired token)
+        // clears the stale session, as before.
+        const serverUnreachable =
+          error instanceof SessionRestoreTimeoutError || (error instanceof ApiError && error.status === 0);
+        if (!cancelled && !serverUnreachable) {
           await clearSession();
         }
       } finally {
